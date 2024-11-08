@@ -21,6 +21,7 @@
   ],
   "permissions": [
     "activeTab",
+    "sidePanel",
     "aiLanguageModelOriginTrial"
   ],
   "trial_tokens": [
@@ -39,5 +40,8 @@
       "128": "images/icon128.png"
     },
     "default_title": "Open Alert Democracy"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"
   }
 }

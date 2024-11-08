@@ -12,7 +12,7 @@ const config = {
     devtool: 'inline-source-map',
     entry: {
         background: './src/background.js',
-        content: './src/content-script.js',
+        "content-script": './src/content-script.js',
     },
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -20,18 +20,18 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/popup.html',
-            filename: 'popup.html',
+            template: './src/popup/index.html',
+            filename: './popup/index.html',
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/sidepanel/index.html',
+            filename: './sidepanel/index.html',
         }),
         new CopyPlugin({
             patterns: [
                 {
                     from: "public",
                     to: "." // Copies to build folder
-                },
-                {
-                    from: "src/popup.css",
-                    to: "popup.css"
                 }
             ],
         })
