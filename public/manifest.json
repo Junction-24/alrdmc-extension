@@ -22,7 +22,8 @@
   "permissions": [
     "activeTab",
     "sidePanel",
-    "aiLanguageModelOriginTrial"
+    "aiLanguageModelOriginTrial",
+    "storage"
   ],
   "trial_tokens": [
     "A6hC1yvazc5QTqSESgEo3uwIUs1KBM4VB93yiTdtgFlFlYNJjf18zmzScpaCepaYpNLaMJ4dNkDps+vbrk7oEw8AAAB9eyJvcmlnaW4iOiAiY2hyb21lLWV4dGVuc2lvbjovL2lkZm1qYmJqY21qamtoYWlvZmltbWNtY29qYmlnbmpmIiwgImZlYXR1cmUiOiAiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCAiZXhwaXJ5IjogMTk4OTQwNzUwMH0="

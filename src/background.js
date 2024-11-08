@@ -21,6 +21,35 @@ class PipelineSingleton {
     }
 }
 
+// Request to http://34.70.118.142:5000/semantic_vectors
+// This will return the data in the format:
+// [
+//      {
+//         "semantic_vector": [0.1, 0.2, 0.3, ...],
+//         "url": "https://www.example.com",
+//      }
+// ]
+fetch("http://34.67.133.83:5000/semantic_vectors").then(response => response.json()).catch((e) => {
+    // Just return fake data for now
+    // Semantic vector has size 384
+    const semantic_vector = Array.from({ length: 384 }, () => Math.random());
+    return [
+        {
+            "semantic_vector": semantic_vector,
+            "semantic_vector_url": "https://www.example.com",
+        }
+    ];
+}).then(data => {
+    // Store the data in the local storage
+    chrome.storage.local.set({ actionables_data: data });
+    console.log("Data stored in local storage");
+    // Assert that the data is stored correctly
+    chrome.storage.local.get('actionables_data', (result) => {
+        console.log("Data retrieved from local storage:", result);
+    });
+}
+);
+
 const embed = async (text) => {
     // Actually run the model on the input text
     let result = await model(text);
@@ -33,8 +62,9 @@ if (PipelineSingleton.instance === null) {
     let model = await PipelineSingleton.getInstance((data) => {
         // You can track the progress of the pipeline creation here.
         // e.g., you can send `data` back to the UI to indicate a progress bar
-        console.log('progress', data)
+        console.debug('progress', data)
     });
+    console.log("Pipeline loaded.");
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
