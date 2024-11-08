@@ -122,6 +122,8 @@ async function process_articles() {
     }, async (response) => {
         let topic_embedding = response;
 
+        console.log("Topic embedding:", topic_embedding);
+
         let relevant_topics = await get_relevant_topics(topic_embedding);
 
         console.log("Relevant topics:", relevant_topics);

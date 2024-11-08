@@ -8,20 +8,20 @@ env.allowLocalModels = false;
 env.backends.onnx.wasm.numThreads = 1;
 
 class PipelineSingleton {
-    static task = 'text-classification';
-    static model = 'Xenova/distilbert-base-uncased-finetuned-sst-2-english';
+    static task = 'feature-extraction';
+    static model = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
     static instance = null;
 
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
-            this.instance = pipeline(this.task, this.model, { progress_callback });
+            this.instance = pipeline(this.task, this.model, { quantized: false, progress_callback });
         }
 
         return this.instance;
     }
 }
 
-const classify = async (text) => {
+const embed = async (text) => {
   // Get the pipeline instance. This will load and build the model when run for the first time.
   let model = await PipelineSingleton.getInstance((data) => {
       // You can track the progress of the pipeline creation here.
@@ -38,4 +38,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action !== "get_topic_embedding") return;
 
     console.log("Message received:", message);
+
+    (async () => {
+        let embedding = await embed(message.topic);
+        console.log("Embedding:", embedding);
+
+        sendResponse(embedding);
+    })();
+
+    return true;
 });
