@@ -94,9 +94,9 @@ async function generate_topic(content) {
     return await runPrompt(prompt_generate_topic + content);
 }
 
-async function get_relevant_topics(topic) {
+async function get_relevant_topics(topic_embedding) {
     // API call to the backend
-
+    return [];
 }
 
 async function process_articles() {
@@ -116,9 +116,16 @@ async function process_articles() {
 
     console.log("TOPIC:", topic);
 
-    let relevant_topics = await get_relevant_topics(topic);
+    chrome.runtime.sendMessage({
+        action: "get_topic_embedding",
+        topic: topic
+    }, async (response) => {
+        let topic_embedding = response;
 
-    return "Change this";
+        let relevant_topics = await get_relevant_topics(topic_embedding);
+
+        console.log("Relevant topics:", relevant_topics);
+    });
 }
 
 if (is_news_website()) {

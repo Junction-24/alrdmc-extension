@@ -7,7 +7,6 @@ env.allowLocalModels = false;
 // See https://github.com/microsoft/onnxruntime/issues/14445 for more information.
 env.backends.onnx.wasm.numThreads = 1;
 
-
 class PipelineSingleton {
     static task = 'text-classification';
     static model = 'Xenova/distilbert-base-uncased-finetuned-sst-2-english';
@@ -35,5 +34,8 @@ const classify = async (text) => {
   return result;
 };
 
-console.log(await classify("Hello, world!"));
-console.log("HOW ARE YOU?");
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action !== "get_topic_embedding") return;
+
+    console.log("Message received:", message);
+});
