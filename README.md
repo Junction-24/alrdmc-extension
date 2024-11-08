@@ -1,0 +1,1 @@
+# Alert Democracy - Chrome Extension
