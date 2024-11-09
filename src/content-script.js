@@ -53,17 +53,17 @@ async function generate_questions_for_actionable(text) {
             initialPrompts: [
                 { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Only write one debate proposition, one sentence, affirming an idea that the user may agree or disagree with. The user only has general knowledge, they do not know about specific projects or technical subjects, so you should keep your debate topics accessible to a general public. The sentence should be something that the user can always express an opinion about. Write debate ideas about what we should do or what the user thinks should happen. Always respect the length limit of 1 sentence." },
                 {
-                    role: "user", content: `TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
+                    role: "user", content: `Gender, Economy, and Women's Votes in the 2020 Presidential Election
 
-While Kamala Harris' candidacy sparked historic excitement and marked a milestone in American politics, her victory was not as decisive or impactful as some had anticipated. This article explores the complex interplay of factors that contributed to this outcome. It delves into the contrasting views on female leadership, particularly in relation to the presidency, and examines how the state of the economy, a crucial consideration for most voters, influenced their decisions. By examining both sides of this seemingly paradoxical issue, the article aims to provide a nuanced understanding of the 2020 election's outcomes and their broader implications for gender equality and the evolution of political power in America.`
+By examining both sides of this seemingly paradoxical issue, the article aims to provide a nuanced understanding of the 2020 election's outcomes and their broader implications for gender equality and the evolution of political power in America.`
                 },
                 { role: "assistant", content: "Gender equality should be made a priority." },
                 {
-                    role: "user", content: `## Topic Description: Northern Spain Flooded but No Casualties
+                    role: "user", content: `Northern Spain Flooded
 
-**Flooding in Northern Spain:** A recent period of heavy rainfall caused significant damage and disruptions to transportation in the northern region of [mention specific region, e.g., Galicia, Asturias].  While the flooding resulted in [mention specific damage caused, e.g., widespread flooding of roads and infrastructure, landslides, damage to crops], authorities reported no fatalities. The event highlighted the vulnerability of the region to extreme weather events and the importance of [mention relevant measures taken, e.g., flood defenses, emergency preparedness, disaster response]. The article likely delves into the details of the flooding, its impacts on various sectors, and the lessons learned from the incident regarding disaster management and infrastructure resilience.`
+A recent period of heavy rainfall caused significant damage and disruptions to transportation in the northern region of Spain.  While the flooding resulted in widespread flooding of roads and infrastructure, authorities reported no fatalities. The event highlighted the vulnerability of the region to extreme weather events and the importance of emergency preparedness.`
                 },
-                { role: "assistant", content: "We should be more prepared for natural disasters." },
+                { role: "assistant", content: "Spain should focus on being prepared for natural disasters." },
             ]
         });
 
@@ -177,7 +177,7 @@ async function process_articles() {
                     continue;
                 }
                 topic.voting_score = 0;
-                let generated_question = await generate_questions_for_actionable(topic.title + '\n' + topic.description);
+                let generated_question = await generate_questions_for_actionable(topic.title + '\n\n' + topic.description);
                 console.log("Generated question for topic:", generated_question);
                 topic.questionToShow = generated_question;
                 top_relevant_topics.push(topic);
