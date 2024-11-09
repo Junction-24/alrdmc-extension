@@ -204,6 +204,25 @@ function changeDialogContent(content) {
 
 function show_initiatives(initiatives) {
     changeDialogContent(dialogInitiativesHTML);
+    // For each initiative, create a an element based on the initiativeBoxHTML template
+    const initiativesContainer = document.querySelector('.initiatives-container');
+    for (let initiative of initiatives) {
+        const initiativeBox = document.createElement('div');
+        initiativeBox.innerHTML = initiativeBoxHTML;
+        initiativeBox.querySelector('.initiative-title').textContent = initiative.title;
+        initiativeBox.querySelector('.initiative-description').textContent = initiative.description;
+        initiativesContainer.appendChild(initiativeBox);
+    }
+
+    // Add event listeners to the buttons
+    const actionButtons = document.querySelectorAll('.initiative-action');
+    for (let i = 0; i < actionButtons.length; i++) {
+        actionButtons[i].addEventListener('click', () => {
+            // Show a new tab with the URL of the initiative
+            console.log("Opening initiative URL:", initiatives[i].semantic_vector_url);
+            chrome.tabs.create({ url: initiatives[i].semantic_vector_url });
+        });
+    }
 }
 
 function show_dialog(questions_to_show) {
@@ -304,6 +323,7 @@ const dialogHTML = `
       <p class="quote" id="dialogStatement">
       </p>
     </div>
+  </div>
     
     <div class="actions">
       <button class="action-button" id="agreeButton">
@@ -336,57 +356,22 @@ const dialogHTML = `
     <div class="footer">
     </div>
     -->
-  </div>
 </div>
 `;
 
 const dialogInitiativesHTML = `
- <div class="modal-center">
- <div class="overlay"></div>
- <div class="container">
-    <div class="header">
-      <div class="header-brand">ALR DMC</div>
-      <button type="button" class="close-button" id="closeButton">×</button>
-    </div>
-    <div class="content">
-<div class="quote-container">
-      <div class="quote-mark">❝</div>
-      <p class="quote" id="dialogStatement">
-      </p>
-    </div>
-    
-    <div class="actions">
-      <button class="action-button" id="agreeButton">
-        Agree
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-        </svg>
-      </button>
-      
-      <div class="divider"></div>
-      
-      <button class="action-button" id="disagreeButton">
-        Disagree
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
-        </svg>
-      </button>
-      
-      <div class="divider"></div>
-      
-      <button class="action-button" id="skipButton">
-        Pass
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-      </button>
-    </div>
-    </div>
-    <!--
-    <div class="footer">
-    </div>
-    -->
-  </div>
+<h1 class='alr-dmc-title'>You can take action!</h1>
+<h2 class='alr-dmc-subtitle'>Check out the following related initiatives 👀</h2>
+<div class="initiatives-container">
+</div>
+`;
+
+// Contains a title, a description, and a button to take action
+const initiativeBoxHTML = `
+<div class="initiative-box">
+    <h2 class="initiative-title">The Paradox of the 2020 Presidential</h2>
+    <p class="initiative-description">Test</p>
+    <button class="action-button initiative-action">Take action</button>
 </div>
 `;
 
@@ -398,9 +383,49 @@ const style = document.createElement('style');
 
 // Dialog displayed in the center of the screen
 style.textContent = `
+.alr-dmc-title { 
+    font-size: 25px;
+    margin-bottom: 12px;
+    font-weight: 800;
+}
 
-.content {
-    text-align: center;
+.alr-dmc-subtitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.initiatives-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: start;
+    gap: 20px;
+}
+
+.initiative-box {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    text-align: start;
+    gap: 10px;
+    border: 1px solid #000000;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.initiative-title {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.initiative-description {
+    font-family: minion-pro, "Open serif", serif,
+}
+
+.alr-dmc-content {
+    text-align: start;
+    padding: 20px;
 }
 
 .container {
@@ -486,12 +511,12 @@ style.textContent = `
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    color: #000000;
+    color: #ffffff;
     text-decoration: none;
     padding: 10px;
     flex: 1;
     border: none;
-    background: #ffffff;
+    background: #000000;
     cursor: pointer;
     margin-right: 5px;
     margin-left: 5px;
@@ -508,14 +533,14 @@ style.textContent = `
   }
 
     .action-button:hover {
-        background: #000000;
-        color: #ffffff;
+        background: #ffffff;
+        color: #000000;
         transition: background 0.3s ease;
     }
 
     .action-button:active {
-        background: #000000;
-        color: #ffffff;
+        background: #ffffff;
+        color: #000000;
     }
 
   .divider {
@@ -561,5 +586,14 @@ show_dialog([
         title: "The Paradox of the 2020 Presidential",
         description: "Test",
         questionToShow: "Test",
-        voting_score: 0,
-    }]);
+        voting_score: 1,
+        semantic_vector_url: "https://www.example.com",
+    },
+    {
+        title: "The Paradox of the 2024 Presidential",
+        description: "Test",
+        questionToShow: "Test",
+        voting_score: -1,
+        semantic_vector_url: "https://www.example.com",
+    },
+]);
