@@ -1,4 +1,5 @@
 import { cos_sim } from '@xenova/transformers';
+import { confetti } from '@tsparticles/confetti';
 
 const DEFAULT_PARAMS = {
     // temperature: 1.0,
@@ -276,7 +277,27 @@ function show_dialog(questions_to_show) {
 
     // Event listener for the agree button: increase the voting score of the current topic
     agreeButton.addEventListener('click', () => {
-        console.log(currentQuestion);
+        confetti("tsparticles", {
+            particleCount: 100,
+            spread: 70,
+            // position: {
+            //     // the coordinates of the button
+            //     x: agreeButton.getBoundingClientRect().left + agreeButton.offsetWidth / 2,
+            //     y: agreeButton.getBoundingClientRect().top + agreeButton.offsetHeight / 2
+            // },
+            position: {
+                x: 50,
+                y: 50,
+            },
+            // Use emojis as particles
+            particles: {
+                shape: {
+                    type: "emoji",
+                    emoji: "🎉"
+                }
+            },
+            zIndex: 103,
+        });
         questions_to_show[currentQuestion].voting_score++;
         goToNextQuestion();
     }
@@ -467,7 +488,7 @@ style.textContent = `
     border-radius: 2;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    z-index: 1000;
+    z-index: 102;
     animation: alr-dmc-appear 0.3s ease;
     border: 3px solid;
 }
@@ -492,7 +513,7 @@ style.textContent = `
       right: 0;
       bottom: 0;
       background-color: rgba(0, 0, 0, 0.3);
-      z-index: 999;
+      z-index: 101;
     }
 
   .alr-dmc-close-button {
