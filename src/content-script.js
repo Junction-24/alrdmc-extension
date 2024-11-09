@@ -198,9 +198,13 @@ if (is_news_website()) {
 // UI
 
 function changeDialogContent(content) {
-    const dialogContainer = document.querySelector('.content');
+    const dialogContainer = document.querySelector('.alr-dmc-content');
     dialogContainer.innerHTML = content;
-}   
+}
+
+function show_initiatives(initiatives) {
+    changeDialogContent(dialogInitiativesHTML);
+}
 
 function show_dialog(questions_to_show) {
     if (questions_to_show.length === 0) {
@@ -229,14 +233,22 @@ function show_dialog(questions_to_show) {
     const agreeButton = document.getElementById('agreeButton');
     const disagreeButton = document.getElementById('disagreeButton');
     const skipButton = document.getElementById('skipButton');
-    
+
     // Event listeners for closing the modal
     closeButton.addEventListener('click', hide_dialog);
 
     const goToNextQuestion = () => {
         currentQuestion++;
         if (currentQuestion >= questions_to_show.length) {
-            changeDialogContent(dialogEmptyHTML);
+            // Close if all the questions have score === 0
+            if (questions_to_show.every(question => question.voting_score === 0)) {
+                hide_dialog();
+            } else {
+                // Change the content to the list of initiatives that have a score !== 0
+                const initiatives_to_show_to_user = questions_to_show.filter(question => question.voting_score !== 0);
+                show_initiatives(initiatives_to_show_to_user);
+            }
+            // changeDialogContent(dialogEmptyHTML);
         } else {
             changeDialogText(questions_to_show[currentQuestion].questionToShow);
         }
@@ -286,7 +298,7 @@ const dialogHTML = `
       <div class="header-brand">ALR DMC</div>
       <button type="button" class="close-button" id="closeButton">×</button>
     </div>
-    <div class="content">
+    <div class="alr-dmc-content">
 <div class="quote-container">
       <div class="quote-mark">❝</div>
       <p class="quote" id="dialogStatement">
@@ -295,28 +307,28 @@ const dialogHTML = `
     
     <div class="actions">
       <button class="action-button" id="agreeButton">
+        Agree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
-        Agree
       </button>
       
       <div class="divider"></div>
       
       <button class="action-button" id="disagreeButton">
+        Disagree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
         </svg>
-        Disagree
       </button>
       
       <div class="divider"></div>
       
       <button class="action-button" id="skipButton">
+        Pass
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
-        Pass
       </button>
     </div>
     </div>
@@ -329,7 +341,53 @@ const dialogHTML = `
 `;
 
 const dialogInitiativesHTML = `
-
+ <div class="modal-center">
+ <div class="overlay"></div>
+ <div class="container">
+    <div class="header">
+      <div class="header-brand">ALR DMC</div>
+      <button type="button" class="close-button" id="closeButton">×</button>
+    </div>
+    <div class="content">
+<div class="quote-container">
+      <div class="quote-mark">❝</div>
+      <p class="quote" id="dialogStatement">
+      </p>
+    </div>
+    
+    <div class="actions">
+      <button class="action-button" id="agreeButton">
+        Agree
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+        </svg>
+      </button>
+      
+      <div class="divider"></div>
+      
+      <button class="action-button" id="disagreeButton">
+        Disagree
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+        </svg>
+      </button>
+      
+      <div class="divider"></div>
+      
+      <button class="action-button" id="skipButton">
+        Pass
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </button>
+    </div>
+    </div>
+    <!--
+    <div class="footer">
+    </div>
+    -->
+  </div>
+</div>
 `;
 
 const dialogEmptyHTML = `
@@ -346,7 +404,7 @@ style.textContent = `
 }
 
 .container {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Open sans', 'Arial', 'Helvetica', sans-serif;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -419,8 +477,8 @@ style.textContent = `
     display: flex;
     justify-content: space-around;
     padding: 15px;
-    background: #f5f5f5;
-    border-top: 1px solid #eee;
+    background: #000000;
+    border-top: 1px solid #ffffff;
   }
 
   .action-button {
@@ -428,31 +486,43 @@ style.textContent = `
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    color: #555;
+    color: #000000;
     text-decoration: none;
     padding: 10px;
     flex: 1;
     border: none;
-    background: none;
+    background: #ffffff;
     cursor: pointer;
-    border-radius: 5px;
     margin-right: 5px;
     margin-left: 5px;
+    /* text in all caps */
+    text-transform: uppercase;
+    font-weight: bold;
+    /* Children in a row, centered horizontally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
   }
 
     .action-button:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: #000000;
+        color: #ffffff;
         transition: background 0.3s ease;
     }
 
     .action-button:active {
-        background: rgba(0, 0, 0, 0.1);
+        background: #000000;
+        color: #ffffff;
     }
 
   .divider {
     width: 1px;
-    background: #ddd;
-    margin: 10px 0;
+    background: #ffffff;
+    margin: 20px 0;
+    visibility: hidden;
   }
   
   .header {
@@ -485,3 +555,11 @@ style.textContent = `
     font-size: 20px;
   }
 `;
+
+show_dialog([
+    {
+        title: "The Paradox of the 2020 Presidential",
+        description: "Test",
+        questionToShow: "Test",
+        voting_score: 0,
+    }]);
