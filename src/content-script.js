@@ -254,7 +254,6 @@ const dialogHTML = `
     
     <div class="footer">
       <div class="footer-brand">Polis</div>
-      <div class="settings-icon">⚙️</div>
     </div>
   </div>
 
