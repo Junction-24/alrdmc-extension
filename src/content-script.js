@@ -51,7 +51,7 @@ async function generate_questions_for_actionable(text) {
         const questionsGeneratorSession = await window.ai.languageModel.create({
             ...DEFAULT_PARAMS,
             initialPrompts: [
-                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Only write one debate proposition, one sentence, affirming an idea that the user may agree or disagree with. The user only has general knowledge, they do not know about specific projects or technical subjects, so you should keep your debate topics accessible to a general public. Always respect the length limit of 1 sentence." },
+                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Only write one debate proposition, one sentence, affirming an idea that the user may agree or disagree with. The user only has general knowledge, they do not know about specific projects or technical subjects, so you should keep your debate topics accessible to a general public. The sentence should be something that the user can always express an opinion about. Write debate ideas about what we should do or what the user thinks should happen. Always respect the length limit of 1 sentence." },
                 {
                     role: "user", content: `TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
 
@@ -63,11 +63,13 @@ While Kamala Harris' candidacy sparked historic excitement and marked a mileston
 
 **Flooding in Northern Spain:** A recent period of heavy rainfall caused significant damage and disruptions to transportation in the northern region of [mention specific region, e.g., Galicia, Asturias].  While the flooding resulted in [mention specific damage caused, e.g., widespread flooding of roads and infrastructure, landslides, damage to crops], authorities reported no fatalities. The event highlighted the vulnerability of the region to extreme weather events and the importance of [mention relevant measures taken, e.g., flood defenses, emergency preparedness, disaster response]. The article likely delves into the details of the flooding, its impacts on various sectors, and the lessons learned from the incident regarding disaster management and infrastructure resilience.`
                 },
-                { role: "assistant", content: "Spain's regional vulnerability to extreme weather events is a cause for concern." },
+                { role: "assistant", content: "We should be more prepared for natural disasters." },
             ]
         });
 
-        return questionsGeneratorSession.prompt(text);
+        const result = await questionsGeneratorSession.prompt(text);
+        // Remove everything after the first period or question mark
+        return result.split(/\.|\?/)[0];
     } catch (e) {
         throw e;
     }
