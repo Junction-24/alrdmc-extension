@@ -296,15 +296,35 @@ function show_dialog(questions_to_show) {
                     emoji: "🎉"
                 }
             },
-            zIndex: 103,
+            zIndex: 100,
         });
         questions_to_show[currentQuestion].voting_score++;
         goToNextQuestion();
-    }
-    );
+    });
 
     // Event listener for the disagree button: decrease the voting score of the current topic
     disagreeButton.addEventListener('click', () => {
+        confetti("tsparticles", {
+            particleCount: 100,
+            spread: 70,
+            // position: {
+            //     // the coordinates of the button
+            //     x: agreeButton.getBoundingClientRect().left + agreeButton.offsetWidth / 2,
+            //     y: agreeButton.getBoundingClientRect().top + agreeButton.offsetHeight / 2
+            // },
+            position: {
+                x: 50,
+                y: 50,
+            },
+            // Use emojis as particles
+            shapes: ["emoji"],
+            shapeOptions: {
+              emoji: {
+                value: ["👎"],
+                },
+            },
+            zIndex: 100,
+        });
         questions_to_show[currentQuestion].voting_score--;
         goToNextQuestion();
     }
@@ -334,7 +354,6 @@ function hide_dialog() {
 
 const dialogHTML = `
  <div class="alr-dmc-modal-center">
- <div class="alr-dmc-overlay"></div>
  <div class="alr-dmc-container">
     <div class="alr-dmc-header">
       <div class="alr-dmc-header-brand">ALR DMC</div>
@@ -431,6 +450,11 @@ style.textContent = `
     border-radius: 10px;
     }
 
+.alr-dmc-modal-center {
+    display: flex;
+    justify-content: center;
+}    
+
 .alr-dmc-initiatives-container::-webkit-scrollbar-thumb {
     height: 4px;
     background: black;
@@ -478,17 +502,12 @@ style.textContent = `
 
 .alr-dmc-container {
     font-family: 'Open sans', 'Arial', 'Helvetica', sans-serif;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 90%;
     max-width: 600px;
     background: white;
     border-radius: 2;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    z-index: 102;
     animation: alr-dmc-appear 0.3s ease;
     border: 3px solid;
 }
