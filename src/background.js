@@ -35,8 +35,8 @@ fetch("http://34.67.133.83:5000/semantic_vectors").then(response => response.jso
     const semantic_vector = Array.from({ length: 384 }, () => Math.random());
     return [
         {
-            "semantic_vector": semantic_vector,
-            "semantic_vector_url": "https://www.example.com",
+            "vector_data": semantic_vector,
+            "initiative_url": "https://www.example.com",
         }
     ];
 }).then(data => {

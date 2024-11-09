@@ -130,7 +130,7 @@ async function get_relevant_topics(topic_embedding) {
 
     for (let topic of topics.actionables_data) {
         try {
-            let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
+            let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.vector_data);
 
             topic.cosine_similarity = cosine_similarity;
         } catch (e) {
