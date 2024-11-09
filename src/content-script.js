@@ -42,21 +42,6 @@ async function runPrompt(prompt) {
 async function summarize_text(text) {
     // Just use the prompt API to summarize the text
     return await runPrompt(prompt_summarize_parts_article + text);
-    // Call the summarization API
-    /* try {
-        if (!summarization_session) {
-            summarization_session = await window.ai.summarizer.create(DEFAULT_PARAMS);
-            console.log('Summarization session created');
-        }
-        return summarization_session.summarize(text);
-    } catch (e) {
-        console.log('Summarization failed');
-        console.error(e);
-        console.log('Text:', text);
-        // Reset session
-        session.reset();
-        throw e;
-    } */
 }
 
 async function generate_questions_for_actionable(text) {
@@ -142,6 +127,7 @@ async function get_relevant_topics(topic_embedding) {
     return topics.actionables_data.sort((a, b) => b.cosine_similarity - a.cosine_similarity);
 }
 
+let relevant_topics = [];
 async function process_articles() {
     const article = document.querySelector('article');
 
@@ -165,7 +151,7 @@ async function process_articles() {
 
         console.log("Topic embedding:", topic_embedding);
 
-        let relevant_topics = await get_relevant_topics(topic_embedding);
+        relevant_topics = await get_relevant_topics(topic_embedding);
 
         console.log("Relevant topics:", relevant_topics);
 
@@ -202,7 +188,7 @@ if (is_news_website()) {
         window.ai.languageModel.create(DEFAULT_PARAMS).then((created_session) => {
             session = created_session;
             console.log('Session created');
-            return process_articles()
+            return process_articles();
         }).then(console.log);
     } catch (e) {
         console.error(e);
@@ -210,6 +196,11 @@ if (is_news_website()) {
 }
 
 // UI
+
+function changeDialogContent(content) {
+    const dialogContainer = document.querySelector('.content');
+    dialogContainer.innerHTML = content;
+}   
 
 function show_dialog(questions_to_show) {
     if (questions_to_show.length === 0) {
@@ -238,15 +229,14 @@ function show_dialog(questions_to_show) {
     const agreeButton = document.getElementById('agreeButton');
     const disagreeButton = document.getElementById('disagreeButton');
     const skipButton = document.getElementById('skipButton');
-    const dialogStatement = document.getElementById('dialogStatement');
-
+    
     // Event listeners for closing the modal
     closeButton.addEventListener('click', hide_dialog);
 
     const goToNextQuestion = () => {
         currentQuestion++;
         if (currentQuestion >= questions_to_show.length) {
-            hide_dialog();
+            changeDialogContent(dialogEmptyHTML);
         } else {
             changeDialogText(questions_to_show[currentQuestion].questionToShow);
         }
@@ -296,8 +286,8 @@ const dialogHTML = `
       <div class="header-brand">ALR DMC</div>
       <button type="button" class="close-button" id="closeButton">×</button>
     </div>
-    
-    <div class="quote-container">
+    <div class="content">
+<div class="quote-container">
       <div class="quote-mark">❝</div>
       <p class="quote" id="dialogStatement">
       </p>
@@ -329,7 +319,7 @@ const dialogHTML = `
         Pass
       </button>
     </div>
-    
+    </div>
     <!--
     <div class="footer">
     </div>
@@ -338,21 +328,21 @@ const dialogHTML = `
 </div>
 `;
 
+const dialogInitiativesHTML = `
+
+`;
+
+const dialogEmptyHTML = `
+    <p class="quote">No more initiatives</p>
+`;
+
 const style = document.createElement('style');
 
 // Dialog displayed in the center of the screen
 style.textContent = `
 
-.hidden {
-    display: none;
-}
-
-.quote-container {
-    transition: all 1s linear;
-}
-
-.next {
-    left: 100%;
+.content {
+    text-align: center;
 }
 
 .container {
@@ -364,11 +354,12 @@ style.textContent = `
     width: 90%;
     max-width: 600px;
     background: white;
-    border-radius: 12px;
+    border-radius: 2;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     z-index: 1000;
     animation: appear 0.3s ease;
+    border: 3px solid;
 }
 
 @keyframes appear {
@@ -469,7 +460,7 @@ style.textContent = `
     align-items: flex-start;
     padding: 15px;
     position: relative;
-    background: #ff0000;
+    background: black;
     color: white;
   }
 
