@@ -185,13 +185,7 @@ if (is_news_website()) {
     }
 }
 
-
-
-
-
-
-
-
+// UI
 
 function show_dialog() {
     const dialogContainer = document.createElement('div');
@@ -209,41 +203,60 @@ function show_dialog() {
 }
 
 function hide_dialog() {
-    const dialogContainer = document.querySelector('.alrdmc-modal');
+    const dialogContainer = document.querySelector('.modal-center');
+    console.log("Dialog container:", dialogContainer);
     if (dialogContainer) {
         dialogContainer.remove();
     }
 }
 
 const dialogHTML = `
-
-<div class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-content">
-            <p class="statement">
-                I think Finland is taking sufficient measures to prepare for extreme climate events
-            </p>
-            <div class="button-container">
-                <button class="button">
-                    <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                    </svg>
-                    Agree
-                </button>
-                <button class="button">
-                    <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
-                    </svg>
-                    Disagree
-                </button>
-            </div>
-        </div>
-        <div class="footer">
-            <a href="#" class="brand">Polis</a>
-            <button class="close-button">×</button>
-        </div>
+ <div class="modal-center">
+ <div class="overlay"></div>
+ <div class="container">
+    <div class="header">
+      <button type="button" class="close-button" id="closeButton">×</button>
     </div>
-</div>
+    
+    <div class="quote-container">
+      <div class="quote-mark">❝</div>
+      <div class="quote">
+        I think Finland is taking sufficient measures to prepare for extreme climate events
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="action-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+        </svg>
+        Agree
+      </button>
+      
+      <div class="divider"></div>
+      
+      <button class="action-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+        </svg>
+        Disagree
+      </button>
+      
+      <div class="divider"></div>
+      
+      <button class="action-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Pass
+      </button>
+    </div>
+    
+    <div class="footer">
+      <div class="footer-brand">Polis</div>
+      <div class="settings-icon">⚙️</div>
+    </div>
+  </div>
 
 `;
 
@@ -251,152 +264,124 @@ const style = document.createElement('style');
 
 // Dialog displayed in the center of the screen
 style.textContent = `
-.modal-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    z-index: 9999;
+
+.hidden {
+    display: none;
 }
-.alrdmc-modal {
-    font-family: Arial, sans-serif;
-    width: 320px;
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+
+.container {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 400px;
     width: 90%;
+    max-width: 600px;
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 1000;
 }
 
-.modal-content {
-    padding: 24px 24px 0;
-}
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
 
-.statement {
-    font-size: 16px;
-    line-height: 1.4;
-    color: #333;
-    margin: 0;
-    padding-bottom: 24px;
-}
-
-.button-container {
+  .header {
     display: flex;
-    border-top: 1px solid #eee;
-}
+    align-items: flex-start;
+    padding: 20px;
+    position: relative;
+  }
 
-.button {
-    flex: 1;
-    padding: 16px;
-    border: none;
-    background: none;
-    font-size: 14px;
-    font-weight: 500;
+  .close-button {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 20px;
     color: #666;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.button:first-child {
-    border-right: 1px solid #eee;
-}
-
-.button:hover {
-    background-color: #f5f5f5;
-}
-
-.button-icon {
-    width: 20px;
-    height: 20px;
-}
-
-.footer {
-    padding: 12px 24px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.brand {
-    font-weight: bold;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.close-button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
-    color: #666;
-    font-size: 18px;
-}
+  }
 
-/* Optional overlay background */
-.modal-overlay {
-    position: fixed;
-    top: 0;
+  .quote-container {
+    position: relative;
+    margin: 20px;
+  }
+
+  .quote-mark {
+    position: absolute;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    top: 0;
+    font-size: 24px;
+    color: #666;
+  }
+
+  .quote {
+    font-size: 24px;
+    line-height: 1.3;
+    margin-left: 40px;
+  }
+
+  .actions {
     display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    background: #f5f5f5;
+    border-top: 1px solid #eee;
+  }
+
+  .action-button {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 5px;
+    color: #555;
+    text-decoration: none;
+    padding: 10px;
     flex: 1;
-    padding: 8px;
     border: none;
-    border-radius: 8px;
+    background: none;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-}
+  }
 
-.agree {
-    background-color: #f0f0f0;
-}
+  .action-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
 
-.agree:hover {
-    background-color: #e0e0e0;
-}
-
-.disagree {
-    background-color: #f0f0f0;
-}
-
-.disagree:hover {
-    background-color: #e0e0e0;
-}
-
-.skip {
-    background-color: #f0f0f0;
-}
-
-.skip:hover {
-    background-color: #e0e0e0;
-}
-
-.divider {
+  .divider {
     width: 1px;
-    height: 24px;
-    background-color: #ddd;
-    margin: 0 8px;
-}
+    background: #ddd;
+    margin: 10px 0;
+  }
+
+  .footer {
+    position: relative;
+    padding: 15px;
+    background: #7FB3D5;
+    color: white;
+    text-align: center;
+  }
+
+  .footer-brand {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .settings-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+  }
 `;
 
 document.head.appendChild(style);
@@ -404,13 +389,6 @@ document.head.appendChild(style);
 show_dialog();
 
 const closeButton = document.getElementById('closeButton');
-const agreeButton = document.getElementById('agreeButton');
-const disagreeButton = document.getElementById('disagreeButton');
-const skipButton = document.getElementById('skipButton');
-const dialogContent = document.getElementById('dialogContent');
-
-// Set the dialog content to "Text here"
-dialogContent.textContent = "Text here";
 
 // Event listeners for closing the modal
 closeButton.addEventListener('click', hide_dialog);

@@ -12,22 +12,13 @@ const config = {
     devtool: 'inline-source-map',
     entry: {
         background: './src/background.js',
-        "content-script": './src/content-script.js',
-        dialog: './src/dialog.js',
+        "content-script": './src/content-script.js'
     },
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].js',
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: './src/popup/index.html',
-            filename: './popup/index.html',
-        }),
-        new HtmlWebpackPlugin({
-            template: './src/sidepanel/index.html',
-            filename: './sidepanel/index.html',
-        }),
         new CopyPlugin({
             patterns: [
                 {
