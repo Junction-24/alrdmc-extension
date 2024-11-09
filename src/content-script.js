@@ -130,7 +130,6 @@ async function get_relevant_topics(topic_embedding) {
     console.log("Topics:", topics);
 
     for (let topic of topics.actionables_data) {
-        console.log("TESTING", Object.values(topic_embedding.data), topic.semantic_vector);
         let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
 
         topic.cosine_similarity = cosine_similarity;
