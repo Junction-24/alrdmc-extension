@@ -29,7 +29,7 @@ class PipelineSingleton {
 //         "url": "https://www.example.com",
 //      }
 // ]
-fetch("http://34.67.133.83:5000/semantic_vectors").then(response => response.json()).catch((e) => {
+fetch("http://alr-dmc.duckdns.org:5000/semantic_vectors").then(response => response.json()).catch((e) => {
     // Just return fake data for now
     // Semantic vector has size 384
     const semantic_vector = Array.from({ length: 384 }, () => Math.random());
@@ -37,6 +37,10 @@ fetch("http://34.67.133.83:5000/semantic_vectors").then(response => response.jso
         {
             "semantic_vector": semantic_vector,
             "semantic_vector_url": "https://www.example.com",
+            "title": "Example Title",
+            "description": "Example Description",
+            "original_title": "Example Original Title",
+            "original_description": "Example Original Description",
         }
     ];
 }).then(data => {
