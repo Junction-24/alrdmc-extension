@@ -50,7 +50,7 @@ async function generate_questions_for_actionable(text) {
         const questionsGeneratorSession = await window.ai.languageModel.create({
             ...DEFAULT_PARAMS,
             initialPrompts: [
-                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased." },
+                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Exclusively write one debate proposition affirming an idea that the user may agree or disagree with for each of your answers. The user only has general knowledge, they do not know about specific projects or technical subjects." },
                 {
                     role: "user", content: `TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
 
@@ -271,7 +271,7 @@ function show_dialog(questions_to_show) {
             }
             // changeDialogContent(dialogEmptyHTML);
         } else {
-            changeDialogText(questions_to_show[currentQuestion].questionToShow);
+            changeDialogQuestion(questions_to_show[currentQuestion]);
         }
     }
 
@@ -334,14 +334,18 @@ function show_dialog(questions_to_show) {
     skipButton.addEventListener('click', goToNextQuestion);
 
     // Display the first question
-    changeDialogText(questions_to_show[currentQuestion].questionToShow);
+    changeDialogQuestion(questions_to_show[currentQuestion]);
 
     return dialogContainer;
 }
 
-function changeDialogText(text) {
+function changeDialogQuestion(question) {
     const statement = document.getElementById('alr-dmc-dialogStatement');
-    statement.textContent = text;
+    statement.textContent = question.questionToShow;
+    // Set the tooltip of the info button to the description of the topic
+    const infoButton = document.querySelector('.alr-dmc-quote-info-button');
+    const textTooltip = $`This is being shown because there is an action item you might be interested in (${question.title}). Depending on your response, we may show you more information about it.`;
+    infoButton.title = textTooltip;
 }
 
 function hide_dialog() {
@@ -364,6 +368,7 @@ const dialogHTML = `
       <div class="alr-dmc-quote-mark">❝</div>
       <p class="alr-dmc-quote" id="alr-dmc-dialogStatement">
       </p>
+      <div class="alr-dmc-quote-info-button">ℹ️</div>
     </div>
   </div>
     
@@ -546,24 +551,32 @@ style.textContent = `
     cursor: pointer;
   }
 
-  .alr-dmc-quote-container {
-    position: relative;
-    margin: 20px;
-  }
+    .alr-dmc-quote-container {
+        position: relative;
+        margin: 20px;
+    }
 
-  .alr-dmc-quote-mark {
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 24px;
-    color: #666;
-  }
+    .alr-dmc-quote-mark {
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 24px;
+        color: #666;
+    }
 
-  .alr-dmc-quote {
-    font-size: 24px;
-    line-height: 1.3;
-    margin-left: 40px;
-  }
+    .alr-dmc-quote-info-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 24px;
+        color: #666;
+    }
+
+    .alr-dmc-quote {
+        font-size: 24px;
+        line-height: 1.3;
+        margin-left: 40px;
+    }
 
   .alr-dmc-actions {
     display: flex;
