@@ -1,7 +1,16 @@
 function show_dialog() {
     const dialogContainer = document.createElement('div');
     dialogContainer.innerHTML = dialogHTML;
-    document.body.appendChild(dialogContainer);
+    // If possible, append the dialog to whatever is after the <article> tag
+    const article = document.querySelector('article');
+    if (article) {
+        console.info("Appending dialog after article");
+        article.after(dialogContainer);
+    }
+    else {
+        console.info("Article not found. Appending dialog to body");
+        document.body.appendChild(dialogContainer);
+    };
 }
 
 function hide_dialog() {
@@ -11,31 +20,44 @@ function hide_dialog() {
     }
 }
 
-const dialogHTML = `<div class="alrdmc-modal">
+const dialogHTML = `
+<div class="modal-center">
+    <div class="alrdmc-modal">
         <div class="alrdmc-modal-header">
-            <span class="alrdmc-modal-title">Polis</span>
+            <span class="alrdmc-modal-title">What do you think?</span>
             <button class="close-button" id="closeButton">✕</button>
         </div>
-        <div class="alrdmc-modal-content">
-            <p>I think Finland is taking sufficient measures to prepare for extreme climate events</p>
+        <div class="alrdmc-modal-content" id="dialogContent">
+            <p></p>
         </div>
         <div class="alrdmc-modal-footer">
             <button class="button agree">👍 Agree</button>
             <span class="divider"></span>
             <button class="button disagree">👎 Disagree</button>
+            <span class="divider"></span>
+            <button class="button skip">Skip</button>
         </div>
     </div>
+</div>
 `;
 
 const style = document.createElement('style');
 
 // Dialog displayed in the center of the screen
 style.textContent = `
-   .alrdmc-modal {
+.modal-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    z-index: 9999;
+}
+.alrdmc-modal {
+    font-family: Arial, sans-serif;
     width: 320px;
     background-color: #fff;
     border: 1px solid #e0e0e0;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     position: fixed;
@@ -111,6 +133,14 @@ style.textContent = `
     background-color: #e0e0e0;
 }
 
+.skip {
+    background-color: #f0f0f0;
+}
+
+.skip:hover {
+    background-color: #e0e0e0;
+}
+
 .divider {
     width: 1px;
     height: 24px;
@@ -126,6 +156,11 @@ show_dialog();
 const closeButton = document.getElementById('closeButton');
 const agreeButton = document.getElementById('agreeButton');
 const disagreeButton = document.getElementById('disagreeButton');
+const skipButton = document.getElementById('skipButton');
+const dialogContent = document.getElementById('dialogContent');
+
+// Set the dialog content to "Text here"
+dialogContent.textContent = "Text here";
 
 // Event listeners for closing the modal
 closeButton.addEventListener('click', hide_dialog);

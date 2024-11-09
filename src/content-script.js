@@ -60,23 +60,28 @@ async function summarize_text(text) {
 }
 
 async function generate_questions_for_actionable(text) {
-    const prompt = "You will be given"
     try {
         const questionsGeneratorSession = await window.ai.languageModel.create({
             ...DEFAULT_PARAMS,
             initialPrompts: [
-                { role: "system", content: "Generate a statement that is debatable and relevant to a political topic. The question should be open-ended and should not be biased." },
+                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased." },
                 {
-                    role: "user", content: ```TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
+                    role: "user", content: `TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
 
-While Kamala Harris' candidacy sparked historic excitement and marked a milestone in American politics, her victory was not as decisive or impactful as some had anticipated. This article explores the complex interplay of factors that contributed to this outcome. It delves into the contrasting views on female leadership, particularly in relation to the presidency, and examines how the state of the economy, a crucial consideration for most voters, influenced their decisions. By examining both sides of this seemingly paradoxical issue, the article aims to provide a nuanced understanding of the 2020 election's outcomes and their broader implications for gender equality and the evolution of political power in America.```
+While Kamala Harris' candidacy sparked historic excitement and marked a milestone in American politics, her victory was not as decisive or impactful as some had anticipated. This article explores the complex interplay of factors that contributed to this outcome. It delves into the contrasting views on female leadership, particularly in relation to the presidency, and examines how the state of the economy, a crucial consideration for most voters, influenced their decisions. By examining both sides of this seemingly paradoxical issue, the article aims to provide a nuanced understanding of the 2020 election's outcomes and their broader implications for gender equality and the evolution of political power in America.`
                 },
-                { role: "assistant", content: "Gender equality should be made a priority." }
+                { role: "assistant", content: "Gender equality should be made a priority." },
+                {
+                    role: "user", content: `## Topic Description: Northern Spain Flooded but No Casualties
+
+**Flooding in Northern Spain:** A recent period of heavy rainfall caused significant damage and disruptions to transportation in the northern region of [mention specific region, e.g., Galicia, Asturias].  While the flooding resulted in [mention specific damage caused, e.g., widespread flooding of roads and infrastructure, landslides, damage to crops], authorities reported no fatalities. The event highlighted the vulnerability of the region to extreme weather events and the importance of [mention relevant measures taken, e.g., flood defenses, emergency preparedness, disaster response]. The article likely delves into the details of the flooding, its impacts on various sectors, and the lessons learned from the incident regarding disaster management and infrastructure resilience.`
+                },
+                { role: "assistant", content: "Spain's regional vulnerability to extreme weather events is a cause for concern." },
             ]
         });
-        console.log('Session created');
+        console.info("Calling model with prompt:", text);
 
-        return questionsGeneratorSession.prompt(prompt);
+        return questionsGeneratorSession.prompt(text);
     } catch (e) {
         throw e;
     }
@@ -144,12 +149,13 @@ async function process_articles() {
     for (let part of parts) {
         sentences.push(await summarize_text(part));
     }
-
     console.log('Sentences:', sentences);
 
     let topic = await generate_topic(sentences.join('\n'));
-
     console.log("TOPIC:", topic);
+
+    const question_for_actionable = await generate_questions_for_actionable(topic);
+    console.info('Question for actionable:', question_for_actionable);
 
     chrome.runtime.sendMessage({
         action: "get_topic_embedding",
