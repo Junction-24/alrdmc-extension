@@ -1,8 +1,8 @@
 import { cos_sim } from '@xenova/transformers';
 
 const DEFAULT_PARAMS = {
-    temperature: 1.0,
-    topK: 5
+    // temperature: 1.0,
+    // topK: 5
 };
 
 let session;
@@ -28,7 +28,7 @@ async function runPrompt(prompt) {
     try {
         session = await window.ai.languageModel.create(DEFAULT_PARAMS);
         console.log('Session created');
-        return session.prompt(prompt); 
+        return session.prompt(prompt);
     } catch (e) {
         console.log('Prompt failed');
         console.error(e);
@@ -59,6 +59,29 @@ async function summarize_text(text) {
     } */
 }
 
+async function generate_questions_for_actionable(text) {
+    const prompt = "You will be given"
+    try {
+        const questionsGeneratorSession = await window.ai.languageModel.create({
+            ...DEFAULT_PARAMS,
+            initialPrompts: [
+                { role: "system", content: "Generate a statement that is debatable and relevant to a political topic. The question should be open-ended and should not be biased." },
+                {
+                    role: "user", content: ```TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
+
+While Kamala Harris' candidacy sparked historic excitement and marked a milestone in American politics, her victory was not as decisive or impactful as some had anticipated. This article explores the complex interplay of factors that contributed to this outcome. It delves into the contrasting views on female leadership, particularly in relation to the presidency, and examines how the state of the economy, a crucial consideration for most voters, influenced their decisions. By examining both sides of this seemingly paradoxical issue, the article aims to provide a nuanced understanding of the 2020 election's outcomes and their broader implications for gender equality and the evolution of political power in America.```
+                },
+                { role: "assistant", content: "Gender equality should be made a priority." }
+            ]
+        });
+        console.log('Session created');
+
+        return questionsGeneratorSession.prompt(prompt);
+    } catch (e) {
+        throw e;
+    }
+}
+
 async function split_article(content, max_length = 1000) {
     // Because the AI model has a limit of 1024 tokens, we need to split the article into parts and summarize each part
     // We'll ask the model to write a one-sentence summary of each part. Then, we'll combine the summaries to create a summary of the whole article
@@ -74,7 +97,7 @@ async function split_article(content, max_length = 1000) {
 
         // Would adding this text to the part make it too long?
         const numTokens = (prompt_summarize_parts_article + part + ' ' + text).length * 0.3; // 0.3 tokens per characters (approximate)
-        console.debug('Num tokens:', numTokens); 
+        console.debug('Num tokens:', numTokens);
         if (numTokens > max_length) {
             // Remove any spaces at the start or end
             parts.push(part.trim());
