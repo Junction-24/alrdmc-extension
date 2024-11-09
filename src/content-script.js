@@ -130,7 +130,7 @@ async function get_relevant_topics(topic_embedding) {
 
     for (let topic of topics.actionables_data) {
         try {
-            let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.vector_data);
+            let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
 
             topic.cosine_similarity = cosine_similarity;
         } catch (e) {
@@ -170,21 +170,25 @@ async function process_articles() {
         console.log("Relevant topics:", relevant_topics);
 
         // Take the top 5 topics
-        const top_relevant_topics = relevant_topics.slice(0, 5);
+        const top_relevant_topics = [];
 
-        // Add a field: voting_score (=0) to all relevant topics
-        for (let topic of top_relevant_topics) {
-            topic.voting_score = 0;
+        // Generate questions for each of the top 5 topics
+        for (let topic of relevant_topics.slice(0, 5)) {
+            try {
+                if (topic.cosine_similarity > 0.7) {
+                    top_relevant_topics.push(topic);
+                }
+                topic.voting_score = 0;
+                let generated_question = await generate_questions_for_actionable(topic.title + '\n' + topic.description);
+                console.log("Generated question for topic:", generated_question);
+                topic.questionToShow = generated_question;
+            }
+            catch (e) {
+                console.error(e);
+            }
         }
 
         console.log("Top 5 relevant topics:", top_relevant_topics);
-
-        // Generate questions for each of the top 5 topics
-        for (let topic of top_relevant_topics) {
-            let generated_question = await generate_questions_for_actionable(topic);
-            console.log("Generated question for topic:", generated_question);
-            topic.questionToShow = generated_question;
-        }
 
         show_dialog(top_relevant_topics);
     });
@@ -208,6 +212,11 @@ if (is_news_website()) {
 // UI
 
 function show_dialog(questions_to_show) {
+    if (questions_to_show.length === 0) {
+        console.error("No questions to show");
+        return;
+    }
+
     document.head.appendChild(style);
 
     var currentQuestion = 0;
