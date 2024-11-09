@@ -11,7 +11,7 @@ let session;
 // We're not using this for now so we don't need to create a session
 
 const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words:\n";
-const prompt_generate_topic = "Given the following phrases about an article, generate a topic description about it:\n";
+const prompt_generate_topic = "Given the following phrases about an article, generate a topic description about it. The description should be one or two phrases long:\n";
 
 function is_news_website() {
     // Let's check if there's a meta tag with property="og:type" and content="article"
@@ -161,13 +161,14 @@ async function process_articles() {
         // Generate questions for each of the top 5 topics
         for (let topic of relevant_topics.slice(0, 5)) {
             try {
-                if (topic.cosine_similarity > 0.7) {
-                    top_relevant_topics.push(topic);
+                if (topic.cosine_similarity < 0.4) {
+                    continue;
                 }
                 topic.voting_score = 0;
                 let generated_question = await generate_questions_for_actionable(topic.title + '\n' + topic.description);
                 console.log("Generated question for topic:", generated_question);
                 topic.questionToShow = generated_question;
+                top_relevant_topics.push(topic);
             }
             catch (e) {
                 console.error(e);
@@ -205,17 +206,17 @@ function changeDialogContent(content) {
 function show_initiatives(initiatives) {
     changeDialogContent(dialogInitiativesHTML);
     // For each initiative, create a an element based on the initiativeBoxHTML template
-    const initiativesContainer = document.querySelector('.initiatives-container');
+    const initiativesContainer = document.querySelector('.alr-dmc-initiatives-container');
     for (let initiative of initiatives) {
         const initiativeBox = document.createElement('div');
         initiativeBox.innerHTML = initiativeBoxHTML;
-        initiativeBox.querySelector('.initiative-title').textContent = initiative.title;
-        initiativeBox.querySelector('.initiative-description').textContent = initiative.description;
+        initiativeBox.querySelector('.alr-dmc-initiative-title').textContent = initiative.title;
+        initiativeBox.querySelector('.alr-dmc-initiative-description').textContent = initiative.description;
         initiativesContainer.appendChild(initiativeBox);
     }
 
     // Add event listeners to the buttons
-    const actionButtons = document.querySelectorAll('.initiative-action');
+    const actionButtons = document.querySelectorAll('.alr-dmc-initiative-action');
     for (let i = 0; i < actionButtons.length; i++) {
         actionButtons[i].addEventListener('click', () => {
             // Show a new tab with the URL of the initiative
@@ -302,7 +303,7 @@ function changeDialogText(text) {
 }
 
 function hide_dialog() {
-    const dialogContainer = document.querySelector('.modal-center');
+    const dialogContainer = document.querySelector('.alr-dmc-modal-center');
     console.log("Dialog container:", dialogContainer);
     if (dialogContainer) {
         dialogContainer.remove();
@@ -310,41 +311,41 @@ function hide_dialog() {
 }
 
 const dialogHTML = `
- <div class="modal-center">
- <div class="overlay"></div>
- <div class="container">
-    <div class="header">
-      <div class="header-brand">ALR DMC</div>
-      <button type="button" class="close-button" id="closeButton">×</button>
+ <div class="alr-dmc-modal-center">
+ <div class="alr-dmc-overlay"></div>
+ <div class="alr-dmc-container">
+    <div class="alr-dmc-header">
+      <div class="alr-dmc-header-brand">ALR DMC</div>
+      <button type="button" class="alr-dmc-close-button" id="closeButton">×</button>
     </div>
     <div class="alr-dmc-content">
-<div class="quote-container">
-      <div class="quote-mark">❝</div>
-      <p class="quote" id="dialogStatement">
+<div class="alr-dmc-quote-container">
+      <div class="alr-dmc-quote-mark">❝</div>
+      <p class="alr-dmc-quote" id="dialogStatement">
       </p>
     </div>
   </div>
     
-    <div class="actions">
-      <button class="action-button" id="agreeButton">
+    <div class="alr-dmc-actions">
+      <button class="alr-dmc-action-button" id="agreeButton">
         Agree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
       </button>
       
-      <div class="divider"></div>
+      <div class="alr-dmc-divider"></div>
       
-      <button class="action-button" id="disagreeButton">
+      <button class="alr-dmc-action-button" id="disagreeButton">
         Disagree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
         </svg>
       </button>
       
-      <div class="divider"></div>
+      <div class="alr-dmc-divider"></div>
       
-      <button class="action-button" id="skipButton">
+      <button class="alr-dmc-action-button" id="skipButton">
         Pass
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -353,7 +354,7 @@ const dialogHTML = `
     </div>
     </div>
     <!--
-    <div class="footer">
+    <div class="alr-dmc-footer">
     </div>
     -->
 </div>
@@ -362,21 +363,21 @@ const dialogHTML = `
 const dialogInitiativesHTML = `
 <h1 class='alr-dmc-title'>You can take action!</h1>
 <h2 class='alr-dmc-subtitle'>Check out the following related initiatives 👀</h2>
-<div class="initiatives-container">
+<div class="alr-dmc-initiatives-container">
 </div>
 `;
 
 // Contains a title, a description, and a button to take action
 const initiativeBoxHTML = `
-<div class="initiative-box">
-    <h2 class="initiative-title">The Paradox of the 2020 Presidential</h2>
-    <p class="initiative-description">Test</p>
-    <button class="action-button initiative-action">Take action</button>
+<div class="alr-dmc-initiative-box">
+    <h2 class="alr-dmc-initiative-title">The Paradox of the 2020 Presidential</h2>
+    <p class="alr-dmc-initiative-description">Test</p>
+    <button class="alr-dmc-action-button alr-dmc-initiative-action">Take action</button>
 </div>
 `;
 
 const dialogEmptyHTML = `
-    <p class="quote">No more initiatives</p>
+    <p class="alr-dmc-quote">No more initiatives</p>
 `;
 
 const style = document.createElement('style');
@@ -394,7 +395,7 @@ style.textContent = `
     margin-bottom: 20px;
 }
 
-.initiatives-container {
+.alr-dmc-initiatives-container {
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -402,7 +403,7 @@ style.textContent = `
     gap: 20px;
 }
 
-.initiative-box {
+.alr-dmc-initiative-box {
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -414,13 +415,20 @@ style.textContent = `
     flex-wrap: wrap;
 }
 
-.initiative-title {
+.alr-dmc-initiative-title {
     font-size: 20px;
     font-weight: 800;
 }
 
-.initiative-description {
+.alr-dmc-initiative-description {
     font-family: minion-pro, "Open serif", serif,
+    /* max height of 3 lines. If more, use ... */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    max-height: 3em;
 }
 
 .alr-dmc-content {
@@ -428,7 +436,7 @@ style.textContent = `
     padding: 20px;
 }
 
-.container {
+.alr-dmc-container {
     font-family: 'Open sans', 'Arial', 'Helvetica', sans-serif;
     position: fixed;
     top: 50%;
@@ -458,7 +466,7 @@ style.textContent = `
     }
 }
 
-    .overlay {
+    .alr-dmc-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -468,7 +476,7 @@ style.textContent = `
       z-index: 999;
     }
 
-  .close-button {
+  .alr-dmc-close-button {
     position: absolute;
     right: 15px;
     top: 12px;
@@ -479,12 +487,12 @@ style.textContent = `
     cursor: pointer;
   }
 
-  .quote-container {
+  .alr-dmc-quote-container {
     position: relative;
     margin: 20px;
   }
 
-  .quote-mark {
+  .alr-dmc-quote-mark {
     position: absolute;
     left: 0;
     top: 0;
@@ -492,13 +500,13 @@ style.textContent = `
     color: #666;
   }
 
-  .quote {
+  .alr-dmc-quote {
     font-size: 24px;
     line-height: 1.3;
     margin-left: 40px;
   }
 
-  .actions {
+  .alr-dmc-actions {
     display: flex;
     justify-content: space-around;
     padding: 15px;
@@ -506,7 +514,7 @@ style.textContent = `
     border-top: 1px solid #ffffff;
   }
 
-  .action-button {
+  .alr-dmc-action-button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -532,25 +540,25 @@ style.textContent = `
     gap: 10px;
   }
 
-    .action-button:hover {
+    .alr-dmc-ction-button:hover {
         background: #ffffff;
         color: #000000;
         transition: background 0.3s ease;
     }
 
-    .action-button:active {
+    .alr-dmc-action-button:active {
         background: #ffffff;
         color: #000000;
     }
 
-  .divider {
+  .alr-dmc-divider {
     width: 1px;
     background: #ffffff;
     margin: 20px 0;
     visibility: hidden;
   }
   
-  .header {
+  .alr-dmc-header {
     display: flex;
     align-items: flex-start;
     padding: 15px;
@@ -559,7 +567,7 @@ style.textContent = `
     color: white;
   }
 
-  .footer {
+  .alr-dmc-footer {
     position: relative;
     padding: 15px;
     background: #FF0000;
@@ -568,11 +576,11 @@ style.textContent = `
     font-size: small;
   }
 
-  .header-brand {
+  .alr-dmc-header-brand {
     font-weight: bold;
   }
 
-  .settings-icon {
+  .alr-dmc-settings-icon {
     position: absolute;
     right: 15px;
     top: 50%;
