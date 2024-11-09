@@ -79,7 +79,6 @@ While Kamala Harris' candidacy sparked historic excitement and marked a mileston
                 { role: "assistant", content: "Spain's regional vulnerability to extreme weather events is a cause for concern." },
             ]
         });
-        console.info("Calling model with prompt:", text);
 
         return questionsGeneratorSession.prompt(text);
     } catch (e) {
@@ -130,9 +129,14 @@ async function get_relevant_topics(topic_embedding) {
     console.log("Topics:", topics);
 
     for (let topic of topics.actionables_data) {
-        let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
+        try {
+            let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
 
-        topic.cosine_similarity = cosine_similarity;
+            topic.cosine_similarity = cosine_similarity;
+        } catch (e) {
+            console.error(e);
+            topic.cosine_similarity = 0.0;
+        }
     }
 
     return topics.actionables_data.sort((a, b) => b.cosine_similarity - a.cosine_similarity);
@@ -155,6 +159,9 @@ async function process_articles() {
 
     const question_for_actionable = await generate_questions_for_actionable(topic);
     console.info('Question for actionable:', question_for_actionable);
+
+    show_dialog();
+    changeDialogText(question_for_actionable);
 
     chrome.runtime.sendMessage({
         action: "get_topic_embedding",
@@ -188,6 +195,8 @@ if (is_news_website()) {
 // UI
 
 function show_dialog() {
+    document.head.appendChild(style);
+
     const dialogContainer = document.createElement('div');
     dialogContainer.innerHTML = dialogHTML;
     // If possible, append the dialog to whatever is after the <article> tag
@@ -200,6 +209,20 @@ function show_dialog() {
         console.info("Article not found. Appending dialog to body");
         document.body.appendChild(dialogContainer);
     };
+
+    const closeButton = document.getElementById('close-button');
+    const agreeButton = document.getElementById('agree-button');
+    const disagreeButton = document.getElementById('disagree-button');
+    const skipButton = document.getElementById('skip-button');
+    const dialogStatement = document.getElementById('dialog-statement');
+
+    // Event listeners for closing the modal
+    closeButton.addEventListener('click', hide_dialog);
+}
+
+function changeDialogText(text) {
+    const statement = document.getElementById('dialog-statement');
+    statement.textContent = text;
 }
 
 function hide_dialog() {
