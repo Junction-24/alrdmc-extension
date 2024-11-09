@@ -13,7 +13,6 @@
         "https://*/*"
       ],
       "js": [
-        "dialog.js",
         "content-script.js"
       ],
       "run_at": "document_idle",
