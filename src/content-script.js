@@ -501,7 +501,7 @@ style.textContent = `
 .alr-dmc-modal-center {
     display: flex;
     justify-content: center;
-    margin-top: 50px;
+    margin: 50px 0 50px 0;
 }    
 
 .alr-dmc-initiatives-container::-webkit-scrollbar-thumb {
