@@ -13,7 +13,7 @@ let session;
 
 const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words and just using English language:\n";
 const prompt_generate_topic = "From the following text, generate a list of keywords, separated by comma, related to it:\n";
-const prompt_translate = "Translate the following text to English:\n";
+const prompt_translate = "Translate the following text into English, do not use any other language:\n";
 
 function is_news_website() {
     // Let's check if there's a meta tag with property="og:type" and content="article"
@@ -27,17 +27,15 @@ function is_news_website() {
 }
 
 async function runPrompt(prompt) {
-    let result = false;
-    while (!result) {
-        try {
-            session = await window.ai.languageModel.create(DEFAULT_PARAMS);
-            console.log('Session created');
-            result = session.prompt(prompt);
-        } catch (e) {
-            console.log('Prompt failed');
-            console.error(e);
-            console.log('Prompt:', prompt);
-        }
+    let result;
+    try {
+        session = await window.ai.languageModel.create(DEFAULT_PARAMS);
+        console.log('Session created');
+        result = await session.prompt(prompt);
+    } catch (e) {
+        console.log('Prompt failed');
+        console.error(e);
+        console.log('Prompt:', prompt);
     }
     return result;
 }
@@ -47,7 +45,7 @@ async function summarize_text(text) {
     return await runPrompt(prompt_summarize_parts_article + text);
 }
 
-async function translate(text, from, to) {
+async function translate(text) {
     return await runPrompt(prompt_translate + text);
 }
 
@@ -145,17 +143,32 @@ async function process_articles() {
 
     let sentences = [];
     for (let part of parts) {
-        // console.log('Translating Part:', part);
-        // part = await translate(part);
-        // console.log('Translated Part:', part);
-        sentences.push(await summarize_text(part));
+        // Split into sentences using regex for common sentence endings
+        const sentencesInPart = part.match(/[^.!?]+[.!?]+/g) || [part];
+        
+        // Take maximum 4 sentences
+        const limitedSentences = sentencesInPart.slice(0, 4);
+
+        // Add translated sentences
+        for (let sentence of limitedSentences) {
+            try {
+                console.log('Translating Sentence:', sentence);
+                const translatedSentence = await translate(sentence.trim());
+                console.log('Translated Sentence:', translatedSentence);
+                sentences.push(translatedSentence);
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }
     console.log('Sentences:', sentences);
 
     let keywords = [];
 
     for (let sentence of sentences) {
+        console.log('Generating keywords for sentence:', sentence);
         let keywords_in_sentence = await generate_topic(sentence);
+        console.log('Keywords in sentence:', keywords_in_sentence);
         keywords.push(keywords_in_sentence);
     }
 
@@ -708,7 +721,7 @@ style.textContent = `
     font-size: 20px;
   }
 `;
-
+/*
  show_dialog([
      {
          title: "The Paradox of the 2020 Presidential",
@@ -732,3 +745,4 @@ style.textContent = `
          semantic_vector_url: "https://www.example.com",
      },
  ]);
+ */
