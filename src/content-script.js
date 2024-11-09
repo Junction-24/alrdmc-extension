@@ -11,7 +11,7 @@ let session;
 // We're not using this for now so we don't need to create a session
 
 const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words:\n";
-const prompt_generate_topic = "Given the following phrases about an article, generate a topic description about it. The description should be one or two phrases long:\n";
+const prompt_generate_topic = "From the following text, generate a list of keywords, separated by comma, related to it:\n";
 
 function is_news_website() {
     // Let's check if there's a meta tag with property="og:type" and content="article"
@@ -140,8 +140,16 @@ async function process_articles() {
     }
     console.log('Sentences:', sentences);
 
-    let topic = await generate_topic(sentences.join('\n'));
-    console.log("TOPIC:", topic);
+    let keywords = [];
+
+    for (let sentence of sentences) {
+        let keywords_in_sentence = await generate_topic(sentence);
+        keywords.push(keywords_in_sentence);
+    }
+
+    let topic = keywords.join(', ');
+
+    console.log("KEYWORDS:", keywords);
 
     chrome.runtime.sendMessage({
         action: "get_topic_embedding",
@@ -212,18 +220,10 @@ function show_initiatives(initiatives) {
         initiativeBox.innerHTML = initiativeBoxHTML;
         initiativeBox.querySelector('.alr-dmc-initiative-title').textContent = initiative.title;
         initiativeBox.querySelector('.alr-dmc-initiative-description').textContent = initiative.description;
+        initiativeBox.querySelector('.alr-dmc-initiative-action').href = initiative.semantic_vector_url;
         initiativesContainer.appendChild(initiativeBox);
     }
-
-    // Add event listeners to the buttons
-    const actionButtons = document.querySelectorAll('.alr-dmc-initiative-action');
-    for (let i = 0; i < actionButtons.length; i++) {
-        actionButtons[i].addEventListener('click', () => {
-            // Show a new tab with the URL of the initiative
-            console.log("Opening initiative URL:", initiatives[i].semantic_vector_url);
-            chrome.tabs.create({ url: initiatives[i].semantic_vector_url });
-        });
-    }
+    document.querySelector('.alr-dmc-actions').innerHTML = '';
 }
 
 function show_dialog(questions_to_show) {
@@ -249,10 +249,10 @@ function show_dialog(questions_to_show) {
         document.body.appendChild(dialogContainer);
     };
 
-    const closeButton = document.getElementById('closeButton');
-    const agreeButton = document.getElementById('agreeButton');
-    const disagreeButton = document.getElementById('disagreeButton');
-    const skipButton = document.getElementById('skipButton');
+    const closeButton = document.getElementById('alr-dmc-closeButton');
+    const agreeButton = document.getElementById('alr-dmc-agreeButton');
+    const disagreeButton = document.getElementById('alr-dmc-disagreeButton');
+    const skipButton = document.getElementById('alr-dmc-skipButton');
 
     // Event listeners for closing the modal
     closeButton.addEventListener('click', hide_dialog);
@@ -276,6 +276,7 @@ function show_dialog(questions_to_show) {
 
     // Event listener for the agree button: increase the voting score of the current topic
     agreeButton.addEventListener('click', () => {
+        console.log(currentQuestion);
         questions_to_show[currentQuestion].voting_score++;
         goToNextQuestion();
     }
@@ -298,7 +299,7 @@ function show_dialog(questions_to_show) {
 }
 
 function changeDialogText(text) {
-    const statement = document.getElementById('dialogStatement');
+    const statement = document.getElementById('alr-dmc-dialogStatement');
     statement.textContent = text;
 }
 
@@ -316,18 +317,18 @@ const dialogHTML = `
  <div class="alr-dmc-container">
     <div class="alr-dmc-header">
       <div class="alr-dmc-header-brand">ALR DMC</div>
-      <button type="button" class="alr-dmc-close-button" id="closeButton">×</button>
+      <button type="button" class="alr-dmc-close-button" id="alr-dmc-closeButton">×</button>
     </div>
     <div class="alr-dmc-content">
 <div class="alr-dmc-quote-container">
       <div class="alr-dmc-quote-mark">❝</div>
-      <p class="alr-dmc-quote" id="dialogStatement">
+      <p class="alr-dmc-quote" id="alr-dmc-dialogStatement">
       </p>
     </div>
   </div>
     
     <div class="alr-dmc-actions">
-      <button class="alr-dmc-action-button" id="agreeButton">
+      <button class="alr-dmc-action-button" id="alr-dmc-agreeButton">
         Agree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
@@ -336,7 +337,7 @@ const dialogHTML = `
       
       <div class="alr-dmc-divider"></div>
       
-      <button class="alr-dmc-action-button" id="disagreeButton">
+      <button class="alr-dmc-action-button" id="alr-dmc-disagreeButton">
         Disagree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
@@ -345,7 +346,7 @@ const dialogHTML = `
       
       <div class="alr-dmc-divider"></div>
       
-      <button class="alr-dmc-action-button" id="skipButton">
+      <button class="alr-dmc-action-button" id="alr-dmc-skipButton">
         Pass
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -367,12 +368,12 @@ const dialogInitiativesHTML = `
 </div>
 `;
 
-// Contains a title, a description, and a button to take action
+// Contains a title, a description, and a button to take action with an arrow icon
 const initiativeBoxHTML = `
 <div class="alr-dmc-initiative-box">
     <h2 class="alr-dmc-initiative-title">The Paradox of the 2020 Presidential</h2>
     <p class="alr-dmc-initiative-description">Test</p>
-    <button class="alr-dmc-action-button alr-dmc-initiative-action">Take action</button>
+    <a class="alr-dmc-action-button alr-dmc-initiative-action" target="_blank">Take action</a>
 </div>
 `;
 
@@ -400,7 +401,24 @@ style.textContent = `
     flex-direction: row;
     align-items: stretch;
     justify-content: start;
+    overflow-x: auto;
     gap: 20px;
+    padding: 8px;
+}
+
+.alr-dmc-initiatives-container::-webkit-scrollbar{
+    border-radius: 10px;
+    }
+
+.alr-dmc-initiatives-container::-webkit-scrollbar-thumb {
+    height: 4px;
+    background: black;
+    border-radius: 10px;
+    }
+
+.alr-dmc-initiatives-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
 }
 
 .alr-dmc-initiative-box {
@@ -413,6 +431,7 @@ style.textContent = `
     border: 1px solid #000000;
     padding: 10px;
     flex-wrap: wrap;
+    min-width: 200px;
 }
 
 .alr-dmc-initiative-title {
@@ -449,11 +468,11 @@ style.textContent = `
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     z-index: 1000;
-    animation: appear 0.3s ease;
+    animation: alr-dmc-appear 0.3s ease;
     border: 3px solid;
 }
 
-@keyframes appear {
+@keyframes alr-dmc-appear {
 
     from {
         transform: translate(-50%, -50%) scale(0.9);
@@ -540,7 +559,7 @@ style.textContent = `
     gap: 10px;
   }
 
-    .alr-dmc-ction-button:hover {
+    .alr-dmc-action-button:hover {
         background: #ffffff;
         color: #000000;
         transition: background 0.3s ease;
@@ -594,14 +613,21 @@ show_dialog([
         title: "The Paradox of the 2020 Presidential",
         description: "Test",
         questionToShow: "Test",
-        voting_score: 1,
+        voting_score: 0,
         semantic_vector_url: "https://www.example.com",
     },
     {
         title: "The Paradox of the 2024 Presidential",
         description: "Test",
         questionToShow: "Test",
-        voting_score: -1,
+        voting_score: 0,
+        semantic_vector_url: "https://www.example.com",
+    },
+    {
+        title: "The Paradox of the 2028 Presidential",
+        description: "Test",
+        questionToShow: "Test",
+        voting_score: 0,
         semantic_vector_url: "https://www.example.com",
     },
 ]);
