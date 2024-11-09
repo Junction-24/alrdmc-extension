@@ -26,18 +26,19 @@ function is_news_website() {
 }
 
 async function runPrompt(prompt) {
-    try {
-        session = await window.ai.languageModel.create(DEFAULT_PARAMS);
-        console.log('Session created');
-        return session.prompt(prompt);
-    } catch (e) {
-        console.log('Prompt failed');
-        console.error(e);
-        console.log('Prompt:', prompt);
-        // Reset session
-        session.reset();
-        throw e;
+    let result = false;
+    while (!result) {
+        try {
+            session = await window.ai.languageModel.create(DEFAULT_PARAMS);
+            console.log('Session created');
+            result = session.prompt(prompt);
+        } catch (e) {
+            console.log('Prompt failed');
+            console.error(e);
+            console.log('Prompt:', prompt);
+        }
     }
+    return result;
 }
 
 async function summarize_text(text) {
@@ -50,7 +51,7 @@ async function generate_questions_for_actionable(text) {
         const questionsGeneratorSession = await window.ai.languageModel.create({
             ...DEFAULT_PARAMS,
             initialPrompts: [
-                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Exclusively write one debate proposition affirming an idea that the user may agree or disagree with for each of your answers. The user only has general knowledge, they do not know about specific projects or technical subjects." },
+                { role: "system", content: "Generate a one-phrase debate idea for a debate about a topic given by the user. The idea should be open-ended and should not be biased. Only write one debate proposition, one sentence, affirming an idea that the user may agree or disagree with. The user only has general knowledge, they do not know about specific projects or technical subjects, so you should keep your debate topics accessible to a general public. Always respect the length limit of 1 sentence." },
                 {
                     role: "user", content: `TOPIC: ## The Paradox of the 2020 Presidential Election: Gender, Economy, and Women's Votes
 
@@ -219,8 +220,8 @@ function show_initiatives(initiatives) {
     for (let initiative of initiatives) {
         const initiativeBox = document.createElement('div');
         initiativeBox.innerHTML = initiativeBoxHTML;
-        initiativeBox.querySelector('.alr-dmc-initiative-title').textContent = initiative.title;
-        initiativeBox.querySelector('.alr-dmc-initiative-description').textContent = initiative.description;
+        initiativeBox.querySelector('.alr-dmc-initiative-title').textContent = initiative.original_title ?? initiative.title;
+        initiativeBox.querySelector('.alr-dmc-initiative-description').textContent = initiative.original_description ?? initiative.description;
         initiativeBox.querySelector('.alr-dmc-initiative-action').href = initiative.semantic_vector_url;
         initiativesContainer.appendChild(initiativeBox);
     }
@@ -344,7 +345,7 @@ function changeDialogQuestion(question) {
     statement.textContent = question.questionToShow;
     // Set the tooltip of the info button to the description of the topic
     const infoButton = document.querySelector('.alr-dmc-quote-info-button');
-    const textTooltip = $`This is being shown because there is an action item you might be interested in (${question.title}). Depending on your response, we may show you more information about it.`;
+    const textTooltip = `This is being shown because there is an action item you might be interested in:\n${question.title}\n\n${question.description}`;
     infoButton.title = textTooltip;
 }
 
@@ -360,7 +361,7 @@ const dialogHTML = `
  <div class="alr-dmc-modal-center">
  <div class="alr-dmc-container">
     <div class="alr-dmc-header">
-      <div class="alr-dmc-header-brand">ALR DMC</div>
+      <div class="alr-dmc-header-brand">What do you think?</div>
       <button type="button" class="alr-dmc-close-button" id="alr-dmc-closeButton">×</button>
     </div>
     <div class="alr-dmc-content">
@@ -374,7 +375,6 @@ const dialogHTML = `
     
     <div class="alr-dmc-actions">
       <button class="alr-dmc-action-button" id="alr-dmc-agreeButton">
-        Agree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
@@ -383,7 +383,6 @@ const dialogHTML = `
       <div class="alr-dmc-divider"></div>
       
       <button class="alr-dmc-action-button" id="alr-dmc-disagreeButton">
-        Disagree
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
         </svg>
@@ -392,7 +391,7 @@ const dialogHTML = `
       <div class="alr-dmc-divider"></div>
       
       <button class="alr-dmc-action-button" id="alr-dmc-skipButton">
-        Pass
+        Skip
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
@@ -408,7 +407,7 @@ const dialogHTML = `
 
 const dialogInitiativesHTML = `
 <h1 class='alr-dmc-title'>You can take action!</h1>
-<h2 class='alr-dmc-subtitle'>Check out the following related initiatives 👀</h2>
+<h2 class='alr-dmc-subtitle'>Want to get involved? Check this out 👀</h2>
 <div class="alr-dmc-initiatives-container">
 </div>
 `;
@@ -458,6 +457,7 @@ style.textContent = `
 .alr-dmc-modal-center {
     display: flex;
     justify-content: center;
+    margin-top: 50px;
 }    
 
 .alr-dmc-initiatives-container::-webkit-scrollbar-thumb {
@@ -490,14 +490,11 @@ style.textContent = `
 }
 
 .alr-dmc-initiative-description {
-    font-family: minion-pro, "Open serif", serif,
-    /* max height of 3 lines. If more, use ... */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    max-height: 3em;
 }
 
 .alr-dmc-content {
@@ -506,7 +503,7 @@ style.textContent = `
 }
 
 .alr-dmc-container {
-    font-family: 'Open sans', 'Arial', 'Helvetica', sans-serif;
+    font-family: 'Open sans', 'Arial', 'Helvetica', sans-serif !important;
     width: 90%;
     max-width: 600px;
     background: white;
@@ -561,7 +558,7 @@ style.textContent = `
         left: 0;
         top: 0;
         font-size: 24px;
-        color: #666;
+        color: #000000;
     }
 
     .alr-dmc-quote-info-button {
@@ -569,13 +566,14 @@ style.textContent = `
         right: 0;
         top: 0;
         font-size: 24px;
-        color: #666;
+        color: #000000;
     }
 
     .alr-dmc-quote {
         font-size: 24px;
         line-height: 1.3;
         margin-left: 40px;
+        margin-right: 40px;
     }
 
   .alr-dmc-actions {
@@ -600,10 +598,8 @@ style.textContent = `
     cursor: pointer;
     margin-right: 5px;
     margin-left: 5px;
-    /* text in all caps */
     text-transform: uppercase;
     font-weight: bold;
-    /* Children in a row, centered horizontally */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -661,26 +657,26 @@ style.textContent = `
   }
 `;
 
-show_dialog([
-    {
-        title: "The Paradox of the 2020 Presidential",
-        description: "Test",
-        questionToShow: "Test",
-        voting_score: 0,
-        semantic_vector_url: "https://www.example.com",
-    },
-    {
-        title: "The Paradox of the 2024 Presidential",
-        description: "Test",
-        questionToShow: "Test",
-        voting_score: 0,
-        semantic_vector_url: "https://www.example.com",
-    },
-    {
-        title: "The Paradox of the 2028 Presidential",
-        description: "Test",
-        questionToShow: "Test",
-        voting_score: 0,
-        semantic_vector_url: "https://www.example.com",
-    },
-]);
+// show_dialog([
+//     {
+//         title: "The Paradox of the 2020 Presidential",
+//         description: "Test",
+//         questionToShow: "Test",
+//         voting_score: 0,
+//         semantic_vector_url: "https://www.example.com",
+//     },
+//     {
+//         title: "The Paradox of the 2024 Presidential",
+//         description: "Test",
+//         questionToShow: "Test",
+//         voting_score: 0,
+//         semantic_vector_url: "https://www.example.com",
+//     },
+//     {
+//         title: "The Paradox of the 2028 Presidential",
+//         description: "Test",
+//         questionToShow: "Test",
+//         voting_score: 0,
+//         semantic_vector_url: "https://www.example.com",
+//     },
+// ]);
