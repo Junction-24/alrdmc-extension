@@ -11,8 +11,9 @@ let session;
 // let summarization_session;
 // We're not using this for now so we don't need to create a session
 
-const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words:\n";
+const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words and just using English language:\n";
 const prompt_generate_topic = "From the following text, generate a list of keywords, separated by comma, related to it:\n";
+const prompt_translate = "Translate the following text to English:\n";
 
 function is_news_website() {
     // Let's check if there's a meta tag with property="og:type" and content="article"
@@ -44,6 +45,10 @@ async function runPrompt(prompt) {
 async function summarize_text(text) {
     // Just use the prompt API to summarize the text
     return await runPrompt(prompt_summarize_parts_article + text);
+}
+
+async function translate(text, from, to) {
+    return await runPrompt(prompt_translate + text);
 }
 
 async function generate_questions_for_actionable(text) {
@@ -140,6 +145,9 @@ async function process_articles() {
 
     let sentences = [];
     for (let part of parts) {
+        // console.log('Translating Part:', part);
+        // part = await translate(part);
+        // console.log('Translated Part:', part);
         sentences.push(await summarize_text(part));
     }
     console.log('Sentences:', sentences);
@@ -242,6 +250,16 @@ function show_dialog(questions_to_show) {
 
     const dialogContainer = document.createElement('div');
     dialogContainer.innerHTML = dialogHTML;
+
+    // Detect when the dialogContainer is in the middle of the screen
+    window.onscroll = () => {
+        const dialogContainer = document.querySelector('.alr-dmc-modal-center');
+        
+        // Make the opaqueness of the overlay depend on the linear distance in both directions to the middle of the screen
+        const overlay = document.querySelector('.alr-dmc-overlay');
+        overlay.style.opacity = 1 - Math.abs(dialogContainer.getBoundingClientRect().top - window.innerHeight / 2) / (window.innerHeight / 2);
+    }
+
     // If possible, append the dialog to whatever is after the <article> tag
     const article = document.querySelector('article');
     if (article) {
@@ -293,11 +311,11 @@ function show_dialog(questions_to_show) {
                 y: 50,
             },
             // Use emojis as particles
-            particles: {
-                shape: {
-                    type: "emoji",
-                    emoji: "🎉"
-                }
+            shapes: ["emoji"],
+            shapeOptions: {
+              emoji: {
+                value: ["👍"],
+                },
             },
             zIndex: 100,
         });
@@ -345,10 +363,17 @@ function show_dialog(questions_to_show) {
 function changeDialogQuestion(question) {
     const statement = document.getElementById('alr-dmc-dialogStatement');
     statement.textContent = question.questionToShow;
-    // Set the tooltip of the info button to the description of the topic
-    const infoButton = document.querySelector('.alr-dmc-quote-info-button');
-    const textTooltip = `This is being shown because there is an action item you might be interested in:\n${question.title}\n\n${question.description}`;
-    infoButton.title = textTooltip;
+
+    const learnMoreQuote = document.querySelector('.alr-dmc-learn-more-quote');
+    const learnMoreContent = document.querySelector('.alr-dmc-learn-more-content');
+
+    learnMoreContent.innerHTML =  `This is being shown because there is an action item you might be interested in:<br><br><b style="font-weight: 600;">${question.title}</b><br><br>${question.description}`;;
+    learnMoreContent.innerHTML += `<div class="alr-dmc-learn-more-copyright">Powered by ALR DMC</div>`;
+    
+    learnMoreQuote.onclick = () => {
+        const learnMoreContent = document.querySelector('.alr-dmc-learn-more-content');
+        learnMoreContent.classList.toggle('alr-dmc-learn-more-content-visible');
+    }
 }
 
 function hide_dialog() {
@@ -361,6 +386,7 @@ function hide_dialog() {
 
 const dialogHTML = `
  <div class="alr-dmc-modal-center">
+ <div class="alr-dmc-overlay"></div>
  <div class="alr-dmc-container">
     <div class="alr-dmc-header">
       <div class="alr-dmc-header-brand">What do you think?</div>
@@ -371,7 +397,10 @@ const dialogHTML = `
       <div class="alr-dmc-quote-mark">❝</div>
       <p class="alr-dmc-quote" id="alr-dmc-dialogStatement">
       </p>
-      <div class="alr-dmc-quote-info-button">ℹ️</div>
+    </div>
+<div class="alr-dmc-learn-more-container">
+      <p class="alr-dmc-learn-more-quote">Why this question?</p>
+      <div class="alr-dmc-learn-more-content"></div>
     </div>
   </div>
     
@@ -514,6 +543,7 @@ style.textContent = `
     overflow: hidden;
     animation: alr-dmc-appear 0.3s ease;
     border: 3px solid;
+    z-index: 102;
 }
 
 @keyframes alr-dmc-appear {
@@ -558,17 +588,37 @@ style.textContent = `
     .alr-dmc-quote-mark {
         position: absolute;
         left: 0;
-        top: 0;
-        font-size: 24px;
+        top: 5px;
+        font-size: 38px;
         color: #000000;
     }
 
-    .alr-dmc-quote-info-button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        font-size: 24px;
-        color: #000000;
+    .alr-dmc-learn-more-quote {
+        font-style: italic;
+        color: gray;
+    }
+
+    .alr-dmc-learn-more-copyright {
+        font-style: italic;
+        color: gray;
+        margin-top: 20px;
+    }
+
+    .alr-dmc-learn-more-quote:hover {
+        color: black;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .alr-dmc-learn-more-content {
+        height: 0;
+        overflow: hidden;
+        margin-top: 15px;
+        color: gray;
+    }
+
+    .alr-dmc-learn-more-content-visible {
+        height: auto;
     }
 
     .alr-dmc-quote {
@@ -578,13 +628,13 @@ style.textContent = `
         margin-right: 40px;
     }
 
-  .alr-dmc-actions {
-    display: flex;
-    justify-content: space-around;
-    padding: 15px;
-    background: #000000;
-    border-top: 1px solid #ffffff;
-  }
+    .alr-dmc-actions {
+        display: flex;
+        justify-content: space-around;
+        padding: 15px;
+        background: #000000;
+        border-top: 1px solid #ffffff;
+    }
 
   .alr-dmc-action-button {
     display: flex;
@@ -659,26 +709,26 @@ style.textContent = `
   }
 `;
 
-// show_dialog([
-//     {
-//         title: "The Paradox of the 2020 Presidential",
-//         description: "Test",
-//         questionToShow: "Test",
-//         voting_score: 0,
-//         semantic_vector_url: "https://www.example.com",
-//     },
-//     {
-//         title: "The Paradox of the 2024 Presidential",
-//         description: "Test",
-//         questionToShow: "Test",
-//         voting_score: 0,
-//         semantic_vector_url: "https://www.example.com",
-//     },
-//     {
-//         title: "The Paradox of the 2028 Presidential",
-//         description: "Test",
-//         questionToShow: "Test",
-//         voting_score: 0,
-//         semantic_vector_url: "https://www.example.com",
-//     },
-// ]);
+ show_dialog([
+     {
+         title: "The Paradox of the 2020 Presidential",
+         description: "Test",
+         questionToShow: "Test",
+         voting_score: 0,
+         semantic_vector_url: "https://www.example.com",
+     },
+     {
+         title: "The Paradox of the 2024 Presidential",
+         description: "Test",
+         questionToShow: "Test",
+         voting_score: 0,
+         semantic_vector_url: "https://www.example.com",
+     },
+     {
+         title: "The Paradox of the 2028 Presidential",
+         description: "Test",
+         questionToShow: "Test",
+         voting_score: 0,
+         semantic_vector_url: "https://www.example.com",
+     },
+ ]);

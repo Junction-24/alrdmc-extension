@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@tsparticles/confetti": "^3.5.0",
-    "@xenova/transformers": "^2.0.0"
+    "@xenova/transformers": "^2.0.0",
+    "google-translate-api-browser": "^5.0.0"
   }
 }

@@ -1023,6 +1023,11 @@ globby@^13.1.1:
     merge2 "^1.4.1"
     slash "^4.0.0"
 
+google-translate-api-browser@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/google-translate-api-browser/-/google-translate-api-browser-5.0.0.tgz#70f33a06e5b683d4133d3f44e8c2f790f26b57d4"
+  integrity sha512-fU+OMp1Ne/RyN3ETnOKOOnPCQk/ZXF351Ih+Mf3hycuNQl94ZB3Q/oZM3LyRzRsQLMVlxq99HNZ2q1sYoh/6kA==
+
 graceful-fs@^4.1.2, graceful-fs@^4.2.11, graceful-fs@^4.2.4:
   version "4.2.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
