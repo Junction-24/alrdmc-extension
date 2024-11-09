@@ -50,6 +50,7 @@ fetch("http://34.67.133.83:5000/semantic_vectors").then(response => response.jso
 }
 );
 
+let model = null;
 const embed = async (text) => {
     // Actually run the model on the input text
     let result = await model(text);
@@ -59,7 +60,7 @@ const embed = async (text) => {
 console.log("Loading pipeline...");
 // Get the pipeline instance. This will load and build the model when run for the first time.
 if (PipelineSingleton.instance === null) {
-    let model = await PipelineSingleton.getInstance((data) => {
+    model = await PipelineSingleton.getInstance((data) => {
         // You can track the progress of the pipeline creation here.
         // e.g., you can send `data` back to the UI to indicate a progress bar
         console.debug('progress', data)
@@ -68,9 +69,9 @@ if (PipelineSingleton.instance === null) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action !== "get_topic_embedding") return;
+  console.log("Message received:", message);
 
-    console.log("Message received:", message);
+  if (message.action !== "get_topic_embedding") return;
 
     (async () => {
         let embedding = await embed(message.topic);

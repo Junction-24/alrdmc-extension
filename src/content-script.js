@@ -1,3 +1,5 @@
+import { cos_sim } from '@xenova/transformers';
+
 const DEFAULT_PARAMS = {
     temperature: 1.0,
     topK: 5
@@ -95,8 +97,18 @@ async function generate_topic(content) {
 }
 
 async function get_relevant_topics(topic_embedding) {
-    // API call to the backend
-    return [];
+    let topics = await chrome.storage.local.get('actionables_data');
+
+    console.log("Topics:", topics);
+
+    for (let topic of topics.actionables_data) {
+        console.log("TESTING", Object.values(topic_embedding.data), topic.semantic_vector);
+        let cosine_similarity = cos_sim(Object.values(topic_embedding.data), topic.semantic_vector);
+
+        topic.cosine_similarity = cosine_similarity;
+    }
+
+    return topics.actionables_data.sort((a, b) => b.cosine_similarity - a.cosine_similarity);
 }
 
 async function process_articles() {

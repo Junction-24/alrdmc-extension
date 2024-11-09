@@ -13,6 +13,7 @@ const config = {
     entry: {
         background: './src/background.js',
         "content-script": './src/content-script.js',
+        dialog: './src/dialog.js',
     },
     output: {
         path: path.resolve(__dirname, 'build'),
