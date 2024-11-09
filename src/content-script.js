@@ -210,18 +210,18 @@ function show_dialog() {
         document.body.appendChild(dialogContainer);
     };
 
-    const closeButton = document.getElementById('close-button');
-    const agreeButton = document.getElementById('agree-button');
-    const disagreeButton = document.getElementById('disagree-button');
-    const skipButton = document.getElementById('skip-button');
-    const dialogStatement = document.getElementById('dialog-statement');
+    const closeButton = document.getElementById('closeButton');
+    const agreeButton = document.getElementById('agreeButton');
+    const disagreeButton = document.getElementById('disagreeButton');
+    const skipButton = document.getElementById('skipButton');
+    const dialogStatement = document.getElementById('dialogStatement');
 
     // Event listeners for closing the modal
     closeButton.addEventListener('click', hide_dialog);
 }
 
 function changeDialogText(text) {
-    const statement = document.getElementById('dialog-statement');
+    const statement = document.getElementById('dialogStatement');
     statement.textContent = text;
 }
 
@@ -238,14 +238,14 @@ const dialogHTML = `
  <div class="overlay"></div>
  <div class="container">
     <div class="header">
+      <div class="header-brand">ALR DMC</div>
       <button type="button" class="close-button" id="closeButton">×</button>
     </div>
     
     <div class="quote-container">
       <div class="quote-mark">❝</div>
-      <div class="quote">
-        I think Finland is taking sufficient measures to prepare for extreme climate events
-      </div>
+      <p class="quote" id="dialogStatement">
+      </p>
     </div>
     
     <div class="actions">
@@ -275,11 +275,12 @@ const dialogHTML = `
       </button>
     </div>
     
+    <!--
     <div class="footer">
-      <div class="footer-brand">Polis</div>
     </div>
+    -->
   </div>
-
+</div>
 `;
 
 const style = document.createElement('style');
@@ -300,6 +301,7 @@ style.textContent = `
 }
 
 .container {
+    font-family: 'Arial', sans-serif;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -311,6 +313,20 @@ style.textContent = `
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     z-index: 1000;
+    animation: appear 0.3s ease;
+}
+
+@keyframes appear {
+
+    from {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
 }
 
     .overlay {
@@ -319,23 +335,16 @@ style.textContent = `
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       z-index: 999;
     }
-
-  .header {
-    display: flex;
-    align-items: flex-start;
-    padding: 20px;
-    position: relative;
-  }
 
   .close-button {
     position: absolute;
     right: 15px;
-    top: 15px;
+    top: 12px;
     font-size: 20px;
-    color: #666;
+    color: #ffffff;
     background: none;
     border: none;
     cursor: pointer;
@@ -380,28 +389,45 @@ style.textContent = `
     border: none;
     background: none;
     cursor: pointer;
+    border-radius: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
   }
 
-  .action-button:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
+    .action-button:hover {
+        background: rgba(0, 0, 0, 0.05);
+        transition: background 0.3s ease;
+    }
+
+    .action-button:active {
+        background: rgba(0, 0, 0, 0.1);
+    }
 
   .divider {
     width: 1px;
     background: #ddd;
     margin: 10px 0;
   }
+  
+  .header {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    position: relative;
+    background: #ff0000;
+    color: white;
+  }
 
   .footer {
     position: relative;
     padding: 15px;
-    background: #7FB3D5;
+    background: #FF0000;
     color: white;
     text-align: center;
+    font-size: small;
   }
 
-  .footer-brand {
-    font-size: 24px;
+  .header-brand {
     font-weight: bold;
   }
 
@@ -414,16 +440,6 @@ style.textContent = `
   }
 `;
 
-document.head.appendChild(style);
-
 show_dialog();
 
-const closeButton = document.getElementById('closeButton');
-const likeButton = document.getElementById('likeButton');
-
-likeButton.addEventListener('click', () => {
-    document.querySelector('.quote-container').classList.add('next');
-});
-
-// Event listeners for closing the modal
-closeButton.addEventListener('click', hide_dialog);
+changeDialogText("This is a test statement");
