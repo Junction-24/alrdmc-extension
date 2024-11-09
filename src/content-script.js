@@ -226,7 +226,7 @@ const dialogHTML = `
     </div>
     
     <div class="actions">
-      <button class="action-button">
+      <button class="action-button" id="likeButton">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
@@ -266,6 +266,14 @@ style.textContent = `
 
 .hidden {
     display: none;
+}
+
+.quote-container {
+    transition: all 1s linear;
+}
+
+.next {
+    left: 100%;
 }
 
 .container {
@@ -388,6 +396,11 @@ document.head.appendChild(style);
 show_dialog();
 
 const closeButton = document.getElementById('closeButton');
+const likeButton = document.getElementById('likeButton');
+
+likeButton.addEventListener('click', () => {
+    document.querySelector('.quote-container').classList.add('next');
+});
 
 // Event listeners for closing the modal
 closeButton.addEventListener('click', hide_dialog);
