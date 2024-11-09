@@ -157,12 +157,6 @@ async function process_articles() {
     let topic = await generate_topic(sentences.join('\n'));
     console.log("TOPIC:", topic);
 
-    const question_for_actionable = await generate_questions_for_actionable(topic);
-    console.info('Question for actionable:', question_for_actionable);
-
-    show_dialog();
-    changeDialogText(question_for_actionable);
-
     chrome.runtime.sendMessage({
         action: "get_topic_embedding",
         topic: topic
@@ -174,6 +168,25 @@ async function process_articles() {
         let relevant_topics = await get_relevant_topics(topic_embedding);
 
         console.log("Relevant topics:", relevant_topics);
+
+        // Take the top 5 topics
+        const top_relevant_topics = relevant_topics.slice(0, 5);
+
+        // Add a field: voting_score (=0) to all relevant topics
+        for (let topic of top_relevant_topics) {
+            topic.voting_score = 0;
+        }
+
+        console.log("Top 5 relevant topics:", top_relevant_topics);
+
+        // Generate questions for each of the top 5 topics
+        for (let topic of top_relevant_topics) {
+            let generated_question = await generate_questions_for_actionable(topic);
+            console.log("Generated question for topic:", generated_question);
+            topic.questionToShow = generated_question;
+        }
+
+        show_dialog(top_relevant_topics);
     });
 }
 
@@ -194,8 +207,10 @@ if (is_news_website()) {
 
 // UI
 
-function show_dialog() {
+function show_dialog(questions_to_show) {
     document.head.appendChild(style);
+
+    var currentQuestion = 0;
 
     const dialogContainer = document.createElement('div');
     dialogContainer.innerHTML = dialogHTML;
@@ -218,6 +233,37 @@ function show_dialog() {
 
     // Event listeners for closing the modal
     closeButton.addEventListener('click', hide_dialog);
+
+    const goToNextQuestion = () => {
+        currentQuestion++;
+        if (currentQuestion >= questions_to_show.length) {
+            hide_dialog();
+        } else {
+            changeDialogText(questions_to_show[currentQuestion].questionToShow);
+        }
+    }
+
+    // Event listener for the agree button: increase the voting score of the current topic
+    agreeButton.addEventListener('click', () => {
+        questions_to_show[currentQuestion].voting_score++;
+        goToNextQuestion();
+    }
+    );
+
+    // Event listener for the disagree button: decrease the voting score of the current topic
+    disagreeButton.addEventListener('click', () => {
+        questions_to_show[currentQuestion].voting_score--;
+        goToNextQuestion();
+    }
+    );
+
+    // Event listener for the skip button: skip to the next question
+    skipButton.addEventListener('click', goToNextQuestion);
+
+    // Display the first question
+    changeDialogText(questions_to_show[currentQuestion].questionToShow);
+
+    return dialogContainer;
 }
 
 function changeDialogText(text) {
@@ -249,7 +295,7 @@ const dialogHTML = `
     </div>
     
     <div class="actions">
-      <button class="action-button" id="likeButton">
+      <button class="action-button" id="agreeButton">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
@@ -258,7 +304,7 @@ const dialogHTML = `
       
       <div class="divider"></div>
       
-      <button class="action-button">
+      <button class="action-button" id="disagreeButton">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
         </svg>
@@ -267,7 +313,7 @@ const dialogHTML = `
       
       <div class="divider"></div>
       
-      <button class="action-button">
+      <button class="action-button" id="skipButton">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
@@ -439,7 +485,3 @@ style.textContent = `
     font-size: 20px;
   }
 `;
-
-show_dialog();
-
-changeDialogText("This is a test statement");
