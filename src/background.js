@@ -7,6 +7,14 @@ env.allowLocalModels = false;
 // See https://github.com/microsoft/onnxruntime/issues/14445 for more information.
 env.backends.onnx.wasm.numThreads = 1;
 
+// Check that the AI model is available (https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/prompt-api-for-extension.md#verifying-the-api-is-working)
+// The extension authors can verify if the API is available by checking the chrome.aiOriginTrial.languageModel from the service worker script. If the AILanguageModel object is defined, the authors can follow the explainer to test the APIs usage.
+if (chrome.aiOriginTrial.languageModel) {
+    console.log("AI model is available.");
+} else {
+    console.error("AI model is not available.");
+}
+
 class PipelineSingleton {
     static task = 'feature-extraction';
     static model = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';

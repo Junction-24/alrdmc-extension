@@ -3,7 +3,7 @@ ALR DMC is a browser extension that helps users take action on the issues they c
 
 # How to run ALR DMC
 1. You will need to have Chrome Beta installed.
-2. Enable the AI Origin Trial Launch Chrome with the following flag, which makes sure the origin trial token in manifest.json is accepted by the browser. This is required because the APIs used are in the experimental stage. Use this origin trial token: `--origin-trial-public-key=dRCs+TocuKkocNKa0AtZ4awrt9XKH2SQCI6o4FY6BNA=`
+2. Enable the AI Origin Trial Launch Chrome with the following flag, which makes sure the origin trial token in manifest.json is accepted by the browser. This is required because the APIs used are in the experimental stage. Use this origin trial token: `--origin-trial-public-key='Apfl6x2Z35Br0a4M1gwrM1eG/ePzpcnscWu28dOWnfB1OM6Fp3cgTQYwn5CO+0YFIp6yGPRJhidxgfmfnYrDgQwAAAB4eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCJleHBpcnkiOjE3NjA0ODYzOTl9'`
 3. Then, load this directory directly as an unpacked extension.
 4. It should work out of the box!
 
