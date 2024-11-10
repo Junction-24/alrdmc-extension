@@ -12,6 +12,7 @@ env.backends.onnx.wasm.numThreads = 1;
 if (chrome.aiOriginTrial.languageModel) {
     console.log("AI model is available.");
 } else {
+    // This will not be reached because we'd get an error if the model is not available after doing .languageModel
     console.error("AI model is not available.");
 }
 
