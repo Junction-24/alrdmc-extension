@@ -7,6 +7,15 @@ env.allowLocalModels = false;
 // See https://github.com/microsoft/onnxruntime/issues/14445 for more information.
 env.backends.onnx.wasm.numThreads = 1;
 
+// Check that the AI model is available (https://chromium.googlesource.com/chromium/src/+/main/docs/experiments/prompt-api-for-extension.md#verifying-the-api-is-working)
+// The extension authors can verify if the API is available by checking the chrome.aiOriginTrial.languageModel from the service worker script. If the AILanguageModel object is defined, the authors can follow the explainer to test the APIs usage.
+if (chrome.aiOriginTrial.languageModel) {
+    console.log("AI model is available.");
+} else {
+    // This will not be reached because we'd get an error if the model is not available after doing .languageModel
+    console.error("AI model is not available.");
+}
+
 class PipelineSingleton {
   static task = "feature-extraction";
   static model = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
@@ -66,7 +75,7 @@ const embed = async (text) => {
   return result;
 };
 
-console.log("Loading pipeline...");
+console.info("Loading pipeline...");
 // Get the pipeline instance. This will load and build the model when run for the first time.
 model = await PipelineSingleton.getInstance((data) => {
   // You can track the progress of the pipeline creation here.
@@ -76,7 +85,7 @@ model = await PipelineSingleton.getInstance((data) => {
 console.log("Pipeline loaded.");
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Message received:", message);
+  console.info("Message received:", message);
 
   if (message.action === "get_topic_embedding") {
     (async () => {
@@ -91,9 +100,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.warn("More than one embedding returned. Using the first one.");
       }
 
-      mean_pooled_embedding = mean_pooled_embedding.view(
-        mean_pooled_embedding.dims[1]
-      );
+        // Here we assume that the batch size is 1, so we remove the first dimension
+        mean_pooled_embedding = mean_pooled_embedding.view(mean_pooled_embedding.dims[1]);
 
       sendResponse(mean_pooled_embedding);
     })();
