@@ -20,7 +20,6 @@
     }
   ],
   "permissions": [
-    "activeTab",
     "aiLanguageModelOriginTrial",
     "storage"
   ],
@@ -29,14 +28,11 @@
   ],
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi99ZKuRYfZMQ80XryBYKNA4DJTHPMEiNkiF6TLqTXMp4Cb23I/DTblxlEELWyM1vDuXeFI7jqXDuM6YVHd7zTtA1hGbGgLm9w9+d763x2wCRbxud+dXIXW4IoD4CqXpCLscDD7Vrar/I5XbcmdA9jjlCXMGS2OKNRhYMjNpaVhFCi2jzWid+92DZSpPbdM9iBODGfwnFNp16tFX8/dDx3w23FneeOVHV3JjNIWO3uT60AhZWOtcQlERuMBJmEkKAgqE8T3ZjoZe4ALupfvDxI7khP29+gBXhgF/r6T0RAbB1LfxubhyLk/X7aC/sw3umCemqvc+knvKRBLHMVl1nHQIDAQAB",
   "minimum_chrome_version": "131",
-  "action": {
-    "default_icon": {
-      "16": "images/icon16.png",
-      "32": "images/icon32.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
-    },
-    "default_title": "Open Alert Democracy"
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"
