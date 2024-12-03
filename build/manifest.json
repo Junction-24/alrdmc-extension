@@ -1,0 +1,42 @@
+{
+  "name": "Alert Democracy",
+  "version": "0.1",
+  "manifest_version": 3,
+  "description": "Alert Democracy is a Chrome extension that allows you to being involved in democracy.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ],
+  "permissions": [
+    "aiLanguageModelOriginTrial",
+    "storage"
+  ],
+  "trial_tokens": [
+"Aji+pzthlNAdLvgy4HlufXHWM46jV7WEUNEqS7+IATek7zDA9XAQ5WbK1kyfSvWF2B9mzRx7DOH4EaYVVZ9F1g0AAAB1eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiTGFuZ3VhZ2VEZXRlY3Rpb25BUEkiLCJleHBpcnkiOjE3NDk1OTk5OTl9",
+"Apfl6x2Z35Br0a4M1gwrM1eG/ePzpcnscWu28dOWnfB1OM6Fp3cgTQYwn5CO+0YFIp6yGPRJhidxgfmfnYrDgQwAAAB4eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCJleHBpcnkiOjE3NjA0ODYzOTl9",
+"AoyFAawxAAYbz588GOdm1RT984oF3he9HlGueQ0ct/qbu/aVar/P1lE/5PqKOm6gd7XqsamuQh8VgnntPf/g3AAAAABzeyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlTdW1tYXJpemF0aW9uQVBJIiwiZXhwaXJ5IjoxNzUzMTQyNDAwfQ=="
+],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxq4kKkN/2VLcVWj3WepZCCy1tDI5nSnscLWewo+c5R2wzg8V4FEb6zAPc0ENEBFetp5Ufc88gwAc8nrrDkqjyIDTmW/LoDfLg78A7I8WD23Qa/5QckbOCZ7xHH2I5Z0KfYckgFYqtkPACq3yPhOKl5NizIgwrL2slkWxBcRfPZYWbN6+27g64x3WkQthRVfXDfdAAd9cjJXij6FGA7a8ih2jkvLqbyNNvVp/jPM2rJvqUIRTmbbEwsjALb53txo6CwZekieAeBR/zCDUj8Ev6HkSg6aCfkZMmqJNMf1ExGGt2EfFa08psk7cXH7UnQssa/d6zB2kuyyPFjz8mer34QIDAQAB",
+  "minimum_chrome_version": "131",
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"
+  }
+}
