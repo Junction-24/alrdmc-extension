@@ -41,7 +41,7 @@ class PipelineSingleton {
 //         "url": "https://www.example.com",
 //      }
 // ]
-fetch("http://alr-dmc.duckdns.org:5000/semantic_vectors")
+fetch("http://35.228.25.229:5000/semantic_vectors")
   .then((response) => response.json())
   .catch((e) => {
     // Just return fake data for now

@@ -1,14 +1,8 @@
 import { cos_sim } from '@xenova/transformers';
 import { confetti } from '@tsparticles/confetti';
 
-let session;
-
-// let summarization_session;
-// We're not using this for now so we don't need to create a session
-
 const prompt_summarize_parts_article = "Generate one very short single sentence that summarizes the following text, in a maximum of 10 words and just using English language:\n";
-const prompt_generate_topic = "From the following text, generate a list of keywords, separated by comma, related to it:\n";
-const prompt_translate = "Translate the following text into English, do not use any other language:\n";
+const prompt_generate_topic = "From the following text, generate a list of keywords, separated by comma, related to it. Write only English keywords:\n";
 
 function is_news_website() {
     // Let's check if there's a meta tag with property="og:type" and content="article"
@@ -30,8 +24,31 @@ async function runPrompt(prompt) {
     });
 }
 
-async function translate(text) {
-    return await runPrompt(prompt_translate + text);
+let translatorInstance = null;
+
+async function getTranslator(sourceLanguage) {
+    if (!translatorInstance) {
+        if (!('translation' in self) || !('createTranslator' in self.translation)) {
+            throw new Error('Translation API not supported');
+        }
+            
+        translatorInstance = await self.translation.createTranslator({
+            sourceLanguage,
+            targetLanguage: 'en',
+        });
+    }
+    return translatorInstance;
+}
+
+async function translate(text, detectedLanguage) {
+    try {
+        const translator = await getTranslator(detectedLanguage);
+        return await translator.translate(text);
+    } catch (e) {
+        console.error('Translation failed:', e);
+
+        return text;
+    }
 }
 
 async function generate_questions_for_actionable(text) {
@@ -119,8 +136,18 @@ async function get_relevant_topics(topic_embedding) {
 }
 
 let relevant_topics = [];
+
+async function createDetector() {
+    if (!('translation' in self) || !('createDetector' in self.translation)) {
+        throw new Error('Translation API not supported');
+    }
+
+    return self.translation.createDetector();
+}
+
 async function process_articles() {
     const article = document.querySelector('article');
+    const detector = await createDetector();
 
     let parts = await split_article(article);
     console.log('Parts:', parts);
@@ -136,10 +163,18 @@ async function process_articles() {
         // Add translated sentences
         for (let sentence of limitedSentences) {
             try {
-                console.log('Translating Sentence:', sentence);
-                const translatedSentence = await translate(sentence.trim());
-                console.log('Translated Sentence:', translatedSentence);
-                sentences.push(translatedSentence);
+                const { detectedLanguage, confidence } = (
+                    await detector.detect(sentence.trim())
+                )[0];
+
+                if (detectedLanguage !== 'en') {
+                    console.log('Translating Sentence:', sentence);
+                    const translatedSentence = await translate(sentence.trim(), detectedLanguage);
+                    console.log('Translated Sentence:', translatedSentence);
+                    sentences.push(translatedSentence);
+                } else {
+                    sentences.push(sentence.trim());
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -151,7 +186,18 @@ async function process_articles() {
 
     for (let sentence of sentences) {
         console.log('Generating keywords for sentence:', sentence);
-        let keywords_in_sentence = await generate_topic(sentence);
+
+        let keywords_in_sentence = null
+        while (!keywords_in_sentence) {
+            try {
+                keywords_in_sentence = await generate_topic(sentence);
+            } catch (e) {
+                console.error(e);
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
         console.log('Keywords in sentence:', keywords_in_sentence);
         keywords.push(keywords_in_sentence);
     }
