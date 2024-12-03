@@ -2,10 +2,10 @@
 ALR DMC is a browser extension that helps users take action on the issues they care about. It does this by detecting when users are reading about topics they can take action on.
 
 # How to run ALR DMC
-1. You will need to have Chrome Beta installed.
-2. Enable the AI Origin Trial Launch Chrome with the following flag, which makes sure the origin trial token in manifest.json is accepted by the browser. This is required because the APIs used are in the experimental stage. Use this origin trial token: `--origin-trial-public-key='Apfl6x2Z35Br0a4M1gwrM1eG/ePzpcnscWu28dOWnfB1OM6Fp3cgTQYwn5CO+0YFIp6yGPRJhidxgfmfnYrDgQwAAAB4eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCJleHBpcnkiOjE3NjA0ODYzOTl9'`
+1. You will need to have Chrome Beta installed and to activate the chrome://flags/#language-detection-api, chrome://flags/#translation-api (**Enabled without language pack limit**), chrome://flags/#prompt-api-for-gemini-nano and chrome://flags/#optimization-guide-on-device-model flags.
+2. Enable the AI Origin Trial Launch Chrome with the following flag, which makes sure the origin trial token in manifest.json is accepted by the browser. This is required because the APIs used are in the experimental stage. Use these origin trial tokens: `--origin-trial-public-key='Apfl6x2Z35Br0a4M1gwrM1eG/ePzpcnscWu28dOWnfB1OM6Fp3cgTQYwn5CO+0YFIp6yGPRJhidxgfmfnYrDgQwAAAB4eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElGb3JFeHRlbnNpb24iLCJleHBpcnkiOjE3NjA0ODYzOTl9' --origin-trial-public-key='Aji+pzthlNAdLvgy4HlufXHWM46jV7WEUNEqS7+IATek7zDA9XAQ5WbK1kyfSvWF2B9mzRx7DOH4EaYVVZ9F1g0AAAB1eyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiTGFuZ3VhZ2VEZXRlY3Rpb25BUEkiLCJleHBpcnkiOjE3NDk1OTk5OTl9' --origin-trial-public-key='AoyFAawxAAYbz588GOdm1RT984oF3he9HlGueQ0ct/qbu/aVar/P1lE/5PqKOm6gd7XqsamuQh8VgnntPf/g3AAAAABzeyJvcmlnaW4iOiJjaHJvbWUtZXh0ZW5zaW9uOi8vb2VuYW1tbWhsb2VrbGFubmZuZ2NjbGpjZWhna2RmaWsiLCJmZWF0dXJlIjoiQUlTdW1tYXJpemF0aW9uQVBJIiwiZXhwaXJ5IjoxNzUzMTQyNDAwfQ=='`
 3. Then, load this directory directly as an unpacked extension.
-4. It should work out of the box!
+4. It should work out of the box! Try visiting this website: https://www.bbc.com/travel/article/20241104-nordhavn-the-danish-city-thats-been-designed-for-an-easy-life
 
 (Credits for install instructions: https://github.com/GoogleChrome/chrome-extensions-samples/tree/main/functional-samples/ai.gemini-on-device)
 
